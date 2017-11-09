@@ -87,6 +87,17 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
 tests.test_layers(layers)
 
 
+def build_predictor(nn_last_layer):
+  softmax_output = tf.nn.softmax(nn_last_layer)
+  predictions_argmax = tf.argmax(softmax_output, axis=-1, output_type=tf.int64)
+  return softmax_output, predictions_argmax
+
+def build_iou_metric(correct_label, predictions_argmax, num_classes):
+  labels_argmax = tf.argmax(correct_label, axis=-1, output_type=tf.int64)
+  iou, iou_op = tf.metrics.mean_iou(labels_argmax, predictions_argmax, num_classes)
+  return iou, iou_op
+
+
 def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     """
     Build the TensorFLow loss and optimizer operations.
@@ -110,7 +121,7 @@ tests.test_optimize(optimize)
 
 
 def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
-             correct_label, keep_prob, learning_rate):
+             correct_label, keep_prob, learning_rate, iou, iou_op):
     """
     Train neural network and print out the loss during training.
     :param sess: TF Session
@@ -126,10 +137,19 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     """
     # TODO: Implement function
     sess.run(tf.global_variables_initializer())
+    sess.run(tf.local_variables_initializer())
     for epoch in range(epochs):
+        losses = []
+        ious = []
         for image, label in get_batches_fn(batch_size):
-            _, loss = sess.run([train_op, cross_entropy_loss], feed_dict={input_image: image, correct_label: label, keep_prob: 0.8})
-tests.test_train_nn(train_nn)
+            _, loss, _ = sess.run([train_op, cross_entropy_loss, iou_op], feed_dict={input_image: image, correct_label: label, keep_prob: 0.8})
+            losses.append(loss)
+            ious.append(sess.run(iou))
+        print("EPOCH {} ...".format(epoch+1))
+        print("Xentloss = {:.4f}".format(sum(losses) / len(losses))) 
+        print("IOU = {:.4f}".format(sum(ious) / len(ious))) 
+
+#tests.test_train_nn(train_nn)
 
 
 def run():
@@ -146,9 +166,9 @@ def run():
     # You'll need a GPU with at least 10 teraFLOPS to train on.
     #  https://www.cityscapes-dataset.com/
     
-    epochs = 10
-    batch_size = 1
-    learning_rate = 0.001 # 1e-4
+    epochs = 30
+    batch_size = 4
+    learning_rate = 1e-4 # 1e-4
     correct_label = tf.placeholder(tf.float32, (None, image_shape[0], image_shape[1], num_classes))
 
     with tf.Session() as sess:
@@ -162,12 +182,15 @@ def run():
 
         # TODO: Build NN using load_vgg, layers, and optimize function
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess, vgg_path)
-        nn_last_layer = layers(layer3_out, layer4_out, layer7_out, num_classes)
-        logits, train_op, cross_entropy_loss = optimize(nn_last_layer, correct_label, learning_rate, num_classes)
+        fcn8s_output = layers(layer3_out, layer4_out, layer7_out, num_classes)
+        logits, train_op, cross_entropy_loss = optimize(fcn8s_output, correct_label, learning_rate, num_classes)
+
+        softmax_output, predictions_argmax = build_predictor(fcn8s_output)
+        iou, iou_op = build_iou_metric(correct_label, predictions_argmax, num_classes)
 
         # TODO: Train NN using the train_nn function
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
-             correct_label, keep_prob, learning_rate)
+             correct_label, keep_prob, learning_rate, iou, iou_op)
 
         # TODO: Save inference data using helper.save_inference_samples
         #  helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
