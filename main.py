@@ -5,6 +5,8 @@ import warnings
 from distutils.version import LooseVersion
 import project_tests as tests
 
+from timeit import default_timer as timer
+
 
 # Check TensorFlow Version
 assert LooseVersion(tf.__version__) >= LooseVersion('1.0'), 'Please use TensorFlow version 1.0 or newer.  You are using {}'.format(tf.__version__)
@@ -120,8 +122,8 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
 tests.test_optimize(optimize)
 
 
-def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
-             correct_label, keep_prob, learning_rate, iou, iou_op):
+def train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_fn, train_op, cross_entropy_loss, input_image,
+             correct_label, keep_prob, learning_rate, iou, iou_op, saver):
     """
     Train neural network and print out the loss during training.
     :param sess: TF Session
@@ -138,16 +140,36 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     # TODO: Implement function
     sess.run(tf.global_variables_initializer())
     sess.run(tf.local_variables_initializer())
+    best_iou = 0
     for epoch in range(epochs):
+        start = timer()
         losses = []
         ious = []
-        for image, label in get_batches_fn(batch_size):
+        for image, label in get_train_batches_fn(batch_size):
             _, loss, _ = sess.run([train_op, cross_entropy_loss, iou_op], feed_dict={input_image: image, correct_label: label, keep_prob: 0.8})
+            #print(loss)
             losses.append(loss)
             ious.append(sess.run(iou))
+        end = timer()
         print("EPOCH {} ...".format(epoch+1))
-        print("Xentloss = {:.4f}".format(sum(losses) / len(losses))) 
-        print("IOU = {:.4f}".format(sum(ious) / len(ious))) 
+        print("  time {} ...".format(end-start))
+        print("  Train Xentloss = {:.4f}".format(sum(losses) / len(losses))) 
+        print("  Train IOU = {:.4f}".format(sum(ious) / len(ious))) 
+
+        losses = []
+        ious = []
+        for image, label in get_valid_batches_fn(batch_size):
+            loss, _ = sess.run([cross_entropy_loss, iou_op], feed_dict={input_image: image, correct_label: label, keep_prob: 1})
+            losses.append(loss)
+            ious.append(sess.run(iou))
+        print("  Valid Xentloss = {:.4f}".format(sum(losses) / len(losses))) 
+        valid_iou = sum(ious) / len(ious)
+        print("  Valid IOU = {:.4f}".format(valid_iou)) 
+
+        if (valid_iou > best_iou):
+            saver.save(sess, './fcn8s')
+            print("  model saved")
+            best_iou = valid_iou
 
 #tests.test_train_nn(train_nn)
 
@@ -166,7 +188,7 @@ def run():
     # You'll need a GPU with at least 10 teraFLOPS to train on.
     #  https://www.cityscapes-dataset.com/
     
-    epochs = 30
+    epochs = 30 # XXX temp for testing purposes
     batch_size = 4
     learning_rate = 1e-4 # 1e-4
     correct_label = tf.placeholder(tf.float32, (None, image_shape[0], image_shape[1], num_classes))
@@ -176,6 +198,10 @@ def run():
         vgg_path = os.path.join(data_dir, 'vgg')
         # Create function to get batches
         get_batches_fn = helper.gen_batch_function(os.path.join(data_dir, 'data_road/training'), image_shape)
+
+        train_images, valid_images, label_paths = helper.load_data(os.path.join(data_dir, 'data_road/training'), 0.1)
+        get_train_batches_fn = helper.gen_mybatch_function(train_images, image_shape, label_paths)
+        get_valid_batches_fn = helper.gen_mybatch_function(valid_images, image_shape, label_paths)
 
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
@@ -188,9 +214,13 @@ def run():
         softmax_output, predictions_argmax = build_predictor(fcn8s_output)
         iou, iou_op = build_iou_metric(correct_label, predictions_argmax, num_classes)
 
+        saver = tf.train.Saver()
+
         # TODO: Train NN using the train_nn function
-        train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
-             correct_label, keep_prob, learning_rate, iou, iou_op)
+        train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_fn, train_op, cross_entropy_loss, input_image,
+             correct_label, keep_prob, learning_rate, iou, iou_op, saver)
+
+        saver.restore(sess, tf.train.latest_checkpoint('.'))
 
         # TODO: Save inference data using helper.save_inference_samples
         #  helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
