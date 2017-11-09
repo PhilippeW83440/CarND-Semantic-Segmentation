@@ -114,6 +114,11 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     labels = tf.reshape(correct_label, (-1, num_classes))
     
     cross_entropy_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
+
+    # l2_reg does not help here apparently (on kitti) ...
+    # regularization_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+    # #regularization_loss = tf.add_n(regularization_losses, name='reg_loss') # Scalar
+    # cross_entropy_loss = cross_entropy_loss + sum(regularization_losses)
     
     optimizer = tf.train.AdamOptimizer(learning_rate)
     train_op = optimizer.minimize(cross_entropy_loss)
