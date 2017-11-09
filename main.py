@@ -193,8 +193,8 @@ def run():
     # You'll need a GPU with at least 10 teraFLOPS to train on.
     #  https://www.cityscapes-dataset.com/
     
-    epochs = 30 # XXX temp for testing purposes
-    batch_size = 4
+    epochs = 100 # XXX temp for testing purposes
+    batch_size = 1
     learning_rate = 1e-4 # 1e-4
     correct_label = tf.placeholder(tf.float32, (None, image_shape[0], image_shape[1], num_classes))
 
