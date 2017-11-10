@@ -1,15 +1,12 @@
-import re
 import random
 import numpy as np
 import os.path
 import scipy.misc
 import shutil
-import zipfile
 import time
 import tensorflow as tf
 from glob import glob
-from urllib.request import urlretrieve
-from tqdm import tqdm
+
 
 from collections import namedtuple
 
@@ -17,46 +14,48 @@ from collections import namedtuple
 # Data
 #-------------------------------------------------------------------------------
 
-data_dir="/home/philippew/Udacity-term3/CarND-Semantic-Segmentation/data/cityscapes"
 
 #-------------------------------------------------------------------------------
 # Labels
 #-------------------------------------------------------------------------------
 Label = namedtuple('Label', ['name', 'color'])
 
+# in case you would use cv2
 def rgb2bgr(tpl):
     return (tpl[2], tpl[1], tpl[0])
 
+# cf https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/helpers/labels.py
+
 label_defs = [
-    Label('unlabeled',     rgb2bgr((0,     0,   0))),
-    Label('dynamic',       rgb2bgr((111,  74,   0))),
-    Label('ground',        rgb2bgr(( 81,   0,  81))),
-    Label('road',          rgb2bgr((128,  64, 128))),
-    Label('sidewalk',      rgb2bgr((244,  35, 232))),
-    Label('parking',       rgb2bgr((250, 170, 160))),
-    Label('rail track',    rgb2bgr((230, 150, 140))),
-    Label('building',      rgb2bgr(( 70,  70,  70))),
-    Label('wall',          rgb2bgr((102, 102, 156))),
-    Label('fence',         rgb2bgr((190, 153, 153))),
-    Label('guard rail',    rgb2bgr((180, 165, 180))),
-    Label('bridge',        rgb2bgr((150, 100, 100))),
-    Label('tunnel',        rgb2bgr((150, 120,  90))),
-    Label('pole',          rgb2bgr((153, 153, 153))),
-    Label('traffic light', rgb2bgr((250, 170,  30))),
-    Label('traffic sign',  rgb2bgr((220, 220,   0))),
-    Label('vegetation',    rgb2bgr((107, 142,  35))),
-    Label('terrain',       rgb2bgr((152, 251, 152))),
-    Label('sky',           rgb2bgr(( 70, 130, 180))),
-    Label('person',        rgb2bgr((220,  20,  60))),
-    Label('rider',         rgb2bgr((255,   0,   0))),
-    Label('car',           rgb2bgr((  0,   0, 142))),
-    Label('truck',         rgb2bgr((  0,   0,  70))),
-    Label('bus',           rgb2bgr((  0,  60, 100))),
-    Label('caravan',       rgb2bgr((  0,   0,  90))),
-    Label('trailer',       rgb2bgr((  0,   0, 110))),
-    Label('train',         rgb2bgr((  0,  80, 100))),
-    Label('motorcycle',    rgb2bgr((  0,   0, 230))),
-    Label('bicycle', rgb2bgr((119, 11, 32)))]
+    Label('unlabeled',     (0,     0,   0)),
+    Label('dynamic',       (111,  74,   0)),
+    Label('ground',        ( 81,   0,  81)),
+    Label('road',          (128,  64, 128)),
+    Label('sidewalk',      (244,  35, 232)),
+    Label('parking',       (250, 170, 160)),
+    Label('rail track',    (230, 150, 140)),
+    Label('building',      ( 70,  70,  70)),
+    Label('wall',          (102, 102, 156)),
+    Label('fence',         (190, 153, 153)),
+    Label('guard rail',    (180, 165, 180)),
+    Label('bridge',        (150, 100, 100)),
+    Label('tunnel',        (150, 120,  90)),
+    Label('pole',          (153, 153, 153)),
+    Label('traffic light', (250, 170,  30)),
+    Label('traffic sign',  (220, 220,   0)),
+    Label('vegetation',    (107, 142,  35)),
+    Label('terrain',       (152, 251, 152)),
+    Label('sky',           ( 70, 130, 180)),
+    Label('person',        (220,  20,  60)),
+    Label('rider',         (255,   0,   0)),
+    Label('car',           (  0,   0, 142)),
+    Label('truck',         (  0,   0,  70)),
+    Label('bus',           (  0,  60, 100)),
+    Label('caravan',       (  0,   0,  90)),
+    Label('trailer',       (  0,   0, 110)),
+    Label('train',         (  0,  80, 100)),
+    Label('motorcycle',    (  0,   0, 230)),
+    Label('bicycle',       (119, 11, 32))]
 
 
 def build_file_list(images_root, labels_root, sample_name):
@@ -76,9 +75,9 @@ def build_file_list(images_root, labels_root, sample_name):
     return file_list
 
 
-def load_data_cityscapes(data_folder):
-    images_root = data_folder + '/leftImg8bit'
-    labels_root = data_folder + '/gtFine'
+def load_data(data_folder):
+    images_root = data_folder + '/leftImg8bit_trainvaltest/leftImg8bit'
+    labels_root = data_folder + '/gtFine_trainvaltest/gtFine'
 
     train_images = build_file_list(images_root, labels_root, 'train')
     valid_images = build_file_list(images_root, labels_root, 'val')
@@ -95,14 +94,14 @@ def load_data_cityscapes(data_folder):
     #train_images = image_paths[(int)(valid_frac*num_images):]
     #return train_images, valid_images, label_paths
 
-def gen_batch_function_cityscapes(image_paths, image_shape):
+def gen_batch_function(image_paths, image_shape):
     """
     Generate function to create batches of training data
     :param data_folder: Path to folder that contains all the datasets
     :param image_shape: Tuple - Shape of image
     :return:
     """
-    def get_batches_fn_cityscapes(batch_size):
+    def get_batches_fn(batch_size):
         """
         Create batches of training data
         :param batch_size: Batch Size
@@ -121,27 +120,27 @@ def gen_batch_function_cityscapes(image_paths, image_shape):
                 gt_image_file = f[1]
 
                 image = scipy.misc.imresize(scipy.misc.imread(image_file), image_shape)
-                gt_image = scipy.misc.imresize(scipy.misc.imread(gt_image_file), image_shape)
+                gt_image = scipy.misc.imresize(scipy.misc.imread(gt_image_file, mode='RGB'), image_shape)
 
                 label_bg = np.zeros([image_shape[0], image_shape[1]], dtype=bool)
                 label_list = []
                 for ldef in label_defs[1:]:
-                    label_current = np.all(gt_image == ldef.color, axis=2)
+                    label_current = np.all(gt_image == np.array(ldef.color), axis=2)
                     label_bg |= label_current
                     label_list.append(label_current)
 
                 label_bg = ~label_bg
                 label_all = np.dstack([label_bg, *label_list])
-                label_all = label_al.astype(np.float32)
+                label_all = label_all.astype(np.float32)
 
                 images.append(image)
                 labels.append(label_all)
 
             yield np.array(images), np.array(labels)
-    return get_batches_fn_cityscapes
+    return get_batches_fn
 
 
-def gen_test_output_cityscapes(sess, logits, keep_prob, image_pl, image_files, image_shape, label_colors):
+def gen_test_output(sess, logits, keep_prob, image_pl, image_files, image_shape, label_colors):
     """
     Generate test output using the test images
     :param sess: TF session
@@ -152,10 +151,9 @@ def gen_test_output_cityscapes(sess, logits, keep_prob, image_pl, image_files, i
     :param image_shape: Tuple - Shape of image
     :return: Output for for each test image
     """
-    #for image_file in glob(os.path.join(data_folder, 'image_2', '*.png')): ### TODO XXX
     for f in image_files:
         image_file = f[0]
-        gt_image_file = f[1]
+        #gt_image_file = f[1]
 
         image = scipy.misc.imresize(scipy.misc.imread(image_file), image_shape)
 
@@ -179,7 +177,7 @@ def gen_test_output_cityscapes(sess, logits, keep_prob, image_pl, image_files, i
         yield os.path.basename(image_file), np.array(street_im)
 
 
-def save_inference_samples_cityscapes(runs_dir, image_files, sess, image_shape, logits, keep_prob, input_image, label_colors):
+def save_inference_samples(runs_dir, image_files, sess, image_shape, logits, keep_prob, input_image, label_colors):
     # Make folder for current run
     output_dir = os.path.join(runs_dir, str(time.time()))
     if os.path.exists(output_dir):
@@ -196,6 +194,10 @@ def save_inference_samples_cityscapes(runs_dir, image_files, sess, image_shape, 
 
 
 
-train_images, valid_images, test_images, num_classes, label_colors, image_shape = load_data_cityscapes(data_dir)
-train_generator = gen_batch_function_cityscapes(train_images, image_shape)
-valid_generator = gen_batch_function_cityscapes(valid_images, image_shape)
+# train_images, valid_images, test_images, num_classes, label_colors, image_shape = load_data('./data/cityscapes')
+# train_generator = gen_batch_function(train_images, image_shape)
+# valid_generator = gen_batch_function(valid_images, image_shape)
+# print("len: train_images {}, valid_images {}, test_images {}".format(len(train_images), len(valid_images), len(test_images)))
+# print("num_classes {}, image_shape {}".format(num_classes, image_shape))
+# print("label_colors: {}".format(label_colors))
+# #print("valid_images: {}".format(valid_images))
