@@ -26,20 +26,23 @@ def rgb2bgr(tpl):
 
 # cf https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/helpers/labels.py
 
+# num_classes 20
+# background (unlabeled) + 19 classes as per official benchmark
+# cf "The Cityscapes Dataset for Semantic Urban Scene Understanding"
 label_defs = [
     Label('unlabeled',     (0,     0,   0)),
-    Label('dynamic',       (111,  74,   0)),
-    Label('ground',        ( 81,   0,  81)),
+    #Label('dynamic',       (111,  74,   0)),
+    #Label('ground',        ( 81,   0,  81)),
     Label('road',          (128,  64, 128)),
     Label('sidewalk',      (244,  35, 232)),
-    Label('parking',       (250, 170, 160)),
-    Label('rail track',    (230, 150, 140)),
+    #Label('parking',       (250, 170, 160)),
+    #Label('rail track',    (230, 150, 140)),
     Label('building',      ( 70,  70,  70)),
     Label('wall',          (102, 102, 156)),
     Label('fence',         (190, 153, 153)),
-    Label('guard rail',    (180, 165, 180)),
-    Label('bridge',        (150, 100, 100)),
-    Label('tunnel',        (150, 120,  90)),
+    #Label('guard rail',    (180, 165, 180)),
+    #Label('bridge',        (150, 100, 100)),
+    #Label('tunnel',        (150, 120,  90)),
     Label('pole',          (153, 153, 153)),
     Label('traffic light', (250, 170,  30)),
     Label('traffic sign',  (220, 220,   0)),
@@ -51,8 +54,8 @@ label_defs = [
     Label('car',           (  0,   0, 142)),
     Label('truck',         (  0,   0,  70)),
     Label('bus',           (  0,  60, 100)),
-    Label('caravan',       (  0,   0,  90)),
-    Label('trailer',       (  0,   0, 110)),
+    #Label('caravan',       (  0,   0,  90)),
+    #Label('trailer',       (  0,   0, 110)),
     Label('train',         (  0,  80, 100)),
     Label('motorcycle',    (  0,   0, 230)),
     Label('bicycle',       (119, 11, 32))]
@@ -76,15 +79,15 @@ def build_file_list(images_root, labels_root, sample_name):
 
 
 def load_data(data_folder):
-    images_root = data_folder + '/leftImg8bit_trainvaltest/leftImg8bit'
-    labels_root = data_folder + '/gtFine_trainvaltest/gtFine'
+    images_root = data_folder + '/leftImg8bit'
+    labels_root = data_folder + '/gtFine'
 
     train_images = build_file_list(images_root, labels_root, 'train')
     valid_images = build_file_list(images_root, labels_root, 'val')
     test_images = build_file_list(images_root, labels_root, 'test')
     num_classes = len(label_defs)
     label_colors = {i: np.array(l.color) for i, l in enumerate(label_defs)}
-    image_shape = (512, 256)
+    image_shape = (256, 512)
 
     return train_images, valid_images, test_images, num_classes, label_colors, image_shape
 
@@ -153,19 +156,21 @@ def gen_test_output(sess, logits, keep_prob, image_pl, image_files, image_shape,
     """
     for f in image_files:
         image_file = f[0]
-        #gt_image_file = f[1]
+        gt_image_file = f[1]
 
         image = scipy.misc.imresize(scipy.misc.imread(image_file), image_shape)
+        gt_image = scipy.misc.imresize(scipy.misc.imread(gt_image_file), image_shape)
 
-        # labels: 2D shape of floats
+        # labels: flat list and not 2D shape of floats
         labels = sess.run(
             [tf.argmax(tf.nn.softmax(logits), axis=-1)],
             {keep_prob: 1.0, image_pl: [image]})
 
-        labels_colored = np.zeros_like(image)
+        labels = labels[0].reshape(image_shape[0], image_shape[1])
+        labels_colored = np.zeros_like(gt_image)
         for label in label_colors:
             label_mask = labels == label
-            labels_colored[label_mask] = label_colors[label]
+            labels_colored[label_mask] = np.array((*label_colors[label], 127))
 
         #im_softmax = im_softmax[0][:, 1].reshape(image_shape[0], image_shape[1])
         #segmentation = (im_softmax > 0.5).reshape(image_shape[0], image_shape[1], 1)

@@ -180,8 +180,6 @@ def run():
     #num_classes = 2
     #image_shape = (160, 576)
     data_dir = './data'
-    runs_dir = './city_runs'
-    city_data_dir = './data/cityscapes'
 
     # Download pretrained vgg model
     helper.maybe_download_pretrained_vgg(data_dir)
@@ -189,10 +187,16 @@ def run():
     # OPTIONAL: Train and Inference on the cityscapes dataset instead of the Kitti dataset.
     # You'll need a GPU with at least 10 teraFLOPS to train on.
     #  https://www.cityscapes-dataset.com/
+    runs_dir = './city_runs'
+    city_data_dir = './data/cityscapes'
     train_images, valid_images, test_images, num_classes, label_colors, image_shape = helper_cityscapes.load_data(city_data_dir)
     print("len: train_images {}, valid_images {}, test_images {}".format(len(train_images), len(valid_images), len(test_images)))
 
-    epochs = 2 # XXX temp for testing purposes
+    # Create function to get batches
+    get_train_batches_fn = helper_cityscapes.gen_batch_function(train_images, image_shape)
+    get_valid_batches_fn = helper_cityscapes.gen_batch_function(valid_images, image_shape)
+
+    epochs = 1 # XXX temp for testing purposes
     batch_size = 8
     learning_rate = 1e-4 # 1e-4
     correct_label = tf.placeholder(tf.float32, (None, image_shape[0], image_shape[1], num_classes))
@@ -200,10 +204,6 @@ def run():
     with tf.Session() as sess:
         # Path to vgg model
         vgg_path = os.path.join(data_dir, 'vgg')
-        # Create function to get batches
-
-        get_train_batches_fn = helper_cityscapes.gen_batch_function(train_images, image_shape)
-        get_valid_batches_fn = helper_cityscapes.gen_batch_function(valid_images, image_shape)
 
         # OPTIONAL: Augment Images for better results
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
