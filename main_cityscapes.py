@@ -3,10 +3,12 @@ import tensorflow as tf
 import helper
 import helper_cityscapes
 import warnings
+import math
 from distutils.version import LooseVersion
 import project_tests as tests
 
 from timeit import default_timer as timer
+from tqdm import tqdm
 
 
 # Check TensorFlow Version
@@ -123,7 +125,7 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
 
 
 def train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_fn, train_op, cross_entropy_loss, input_image,
-             correct_label, keep_prob, learning_rate, iou, iou_op, saver):
+             correct_label, keep_prob, learning_rate, iou, iou_op, saver, n_batches):
     """
     Train neural network and print out the loss during training.
     :param sess: TF Session
@@ -137,16 +139,19 @@ def train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_f
     :param keep_prob: TF Placeholder for dropout keep probability
     :param learning_rate: TF Placeholder for learning rate
     """
+
     sess.run(tf.global_variables_initializer())
     sess.run(tf.local_variables_initializer())
     best_iou = 0
     for epoch in range(epochs):
+        generator = get_train_batches_fn(batch_size)
+        description = '[i] Epoch {:>2}/{}'.format(epoch+1, epochs)
         start = timer()
         losses = []
         ious = []
-        for image, label in get_train_batches_fn(batch_size):
+        for image, label in tqdm(generator, total=n_batches, desc=description, unit='batches'):
             _, loss, _ = sess.run([train_op, cross_entropy_loss, iou_op], feed_dict={input_image: image, correct_label: label, keep_prob: 0.8})
-            print(loss)
+            #print(loss)
             losses.append(loss)
             ious.append(sess.run(iou))
         end = timer()
@@ -188,7 +193,7 @@ def run():
     print("len: train_images {}, valid_images {}, test_images {}".format(len(train_images), len(valid_images), len(test_images)))
 
     epochs = 2 # XXX temp for testing purposes
-    batch_size = 128
+    batch_size = 8
     learning_rate = 1e-4 # 1e-4
     correct_label = tf.placeholder(tf.float32, (None, image_shape[0], image_shape[1], num_classes))
 
@@ -212,8 +217,9 @@ def run():
 
         saver = tf.train.Saver()
 
+        n_batches = int(math.ceil(len(train_images)/batch_size))
         train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_fn, train_op, cross_entropy_loss, input_image,
-             correct_label, keep_prob, learning_rate, iou, iou_op, saver)
+             correct_label, keep_prob, learning_rate, iou, iou_op, saver, n_batches)
 
         saver.restore(sess, tf.train.latest_checkpoint('.'))
 
