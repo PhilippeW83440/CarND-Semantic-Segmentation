@@ -9,6 +9,8 @@ import project_tests as tests
 
 from timeit import default_timer as timer
 from tqdm import tqdm
+import scipy.misc
+import numpy as np
 
 
 # Check TensorFlow Version
@@ -93,7 +95,7 @@ def build_predictor(nn_last_layer):
   predictions_argmax = tf.argmax(softmax_output, axis=-1, output_type=tf.int64)
   return softmax_output, predictions_argmax
 
-def build_iou_metric(correct_label, predictions_argmax, num_classes):
+def build_metrics(correct_label, predictions_argmax, num_classes):
   labels_argmax = tf.argmax(correct_label, axis=-1, output_type=tf.int64)
   iou, iou_op = tf.metrics.mean_iou(labels_argmax, predictions_argmax, num_classes)
   return iou, iou_op
@@ -176,6 +178,38 @@ def train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_f
             best_iou = valid_iou
 
 
+# get mean IOU over a reference test set
+def test_nn(sess, batch_size, get_test_batches_fn, predictions_argmax, input_image, correct_label, keep_prob, iou, iou_op, n_batches):
+    generator = get_test_batches_fn(batch_size)
+    ious = []
+    for image, label in tqdm(generator, total=n_batches, unit='batches'):
+        labels, _ = sess.run([predictions_argmax, iou_op], feed_dict={input_image: image, correct_label: label, keep_prob: 1})
+        ious.append(sess.run(iou))
+    print("Test IOU = {:.4f}".format(sum(ious) / len(ious))) 
+
+
+# process 1 image
+def predict_nn(sess, test_image, predictions_argmax, input_image, keep_prob, image_shape, label_colors):
+    start = timer()
+    image = scipy.misc.imresize(test_image, image_shape)
+
+    labels = sess.run([predictions_argmax], feed_dict={input_image: [image], keep_prob: 1})
+    labels = labels[0].reshape(image_shape[0], image_shape[1])
+
+    # create an overlay
+    labels_colored = np.zeros((*image_shape, 4)) # 4 for RGBA
+    for label in label_colors:
+        label_mask = labels == label
+        labels_colored[label_mask] = np.array((*label_colors[label], 127))
+
+    mask = scipy.misc.toimage(labels_colored, mode="RGBA")
+    pred_image = scipy.misc.toimage(image)
+    pred_image.paste(mask, box=None, mask=mask)
+    end = timer()
+    print("predict time {}".format(end-start))
+    return pred_image
+
+
 def run():
     #num_classes = 2
     #image_shape = (160, 576)
@@ -195,6 +229,7 @@ def run():
     # Create function to get batches
     get_train_batches_fn = helper_cityscapes.gen_batch_function(train_images, image_shape)
     get_valid_batches_fn = helper_cityscapes.gen_batch_function(valid_images, image_shape)
+    get_test_batches_fn = helper_cityscapes.gen_batch_function(test_images, image_shape)
 
     epochs = 1 # XXX temp for testing purposes
     batch_size = 8
@@ -213,13 +248,21 @@ def run():
         logits, train_op, cross_entropy_loss = optimize(fcn8s_output, correct_label, learning_rate, num_classes)
 
         softmax_output, predictions_argmax = build_predictor(fcn8s_output)
-        iou, iou_op = build_iou_metric(correct_label, predictions_argmax, num_classes)
+        iou, iou_op = build_metrics(correct_label, predictions_argmax, num_classes)
 
         saver = tf.train.Saver()
 
         n_batches = int(math.ceil(len(train_images)/batch_size))
         train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_fn, train_op, cross_entropy_loss, input_image,
              correct_label, keep_prob, learning_rate, iou, iou_op, saver, n_batches)
+
+        test_image = scipy.misc.imread("test_image.png")
+        pred_image = predict_nn(sess, test_image, predictions_argmax, input_image, keep_prob, image_shape, label_colors)
+        scipy.misc.imsave("pred_image.png", pred_image)
+
+        n_batches = int(math.ceil(len(test_images)/batch_size))
+        # batch_size 32 is ok (and faster) with GTX 1080 TI and 11 GB memory
+        test_nn(sess, 32, get_test_batches_fn, predictions_argmax, input_image, correct_label, keep_prob, iou, iou_op, n_batches)
 
         saver.restore(sess, tf.train.latest_checkpoint('.'))
 

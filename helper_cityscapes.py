@@ -9,6 +9,7 @@ from glob import glob
 
 
 from collections import namedtuple
+from timeit import default_timer as timer
 
 #-------------------------------------------------------------------------------
 # Data
@@ -162,9 +163,12 @@ def gen_test_output(sess, logits, keep_prob, image_pl, image_files, image_shape,
         gt_image = scipy.misc.imresize(scipy.misc.imread(gt_image_file), image_shape)
 
         # labels: flat list and not 2D shape of floats
+        #start = timer()
         labels = sess.run(
             [tf.argmax(tf.nn.softmax(logits), axis=-1)],
             {keep_prob: 1.0, image_pl: [image]})
+        #end = timer()
+        #print("  inference time {} ...".format(end-start))
 
         labels = labels[0].reshape(image_shape[0], image_shape[1])
         labels_colored = np.zeros_like(gt_image)
@@ -172,9 +176,6 @@ def gen_test_output(sess, logits, keep_prob, image_pl, image_files, image_shape,
             label_mask = labels == label
             labels_colored[label_mask] = np.array((*label_colors[label], 127))
 
-        #im_softmax = im_softmax[0][:, 1].reshape(image_shape[0], image_shape[1])
-        #segmentation = (im_softmax > 0.5).reshape(image_shape[0], image_shape[1], 1)
-        #mask = np.dot(segmentation, np.array([[0, 255, 0, 127]]))
         mask = scipy.misc.toimage(labels_colored, mode="RGBA")
         street_im = scipy.misc.toimage(image)
         street_im.paste(mask, box=None, mask=mask)
@@ -199,10 +200,11 @@ def save_inference_samples(runs_dir, image_files, sess, image_shape, logits, kee
 
 
 
-# train_images, valid_images, test_images, num_classes, label_colors, image_shape = load_data('./data/cityscapes')
-# train_generator = gen_batch_function(train_images, image_shape)
-# valid_generator = gen_batch_function(valid_images, image_shape)
-# print("len: train_images {}, valid_images {}, test_images {}".format(len(train_images), len(valid_images), len(test_images)))
-# print("num_classes {}, image_shape {}".format(num_classes, image_shape))
-# print("label_colors: {}".format(label_colors))
-# #print("valid_images: {}".format(valid_images))
+#train_images, valid_images, test_images, num_classes, label_colors, image_shape = load_data('./data/cityscapes')
+#train_generator = gen_batch_function(train_images, image_shape)
+#valid_generator = gen_batch_function(valid_images, image_shape)
+#test_generator = gen_batch_function(test_images, image_shape)
+#print("len: train_images {}, valid_images {}, test_images {}".format(len(train_images), len(valid_images), len(test_images)))
+#print("num_classes {}, image_shape {}".format(num_classes, image_shape))
+#print("label_colors: {}".format(label_colors))
+##print("valid_images: {}".format(valid_images))
