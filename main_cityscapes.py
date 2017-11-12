@@ -12,6 +12,8 @@ from tqdm import tqdm
 import scipy.misc
 import numpy as np
 
+import argparse
+
 
 # Check TensorFlow Version
 assert LooseVersion(tf.__version__) >= LooseVersion('1.0'), 'Please use TensorFlow version 1.0 or newer.  You are using {}'.format(tf.__version__)
@@ -60,7 +62,6 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :param num_classes: Number of classes to classify
     :return: The Tensor for the last layer of output
     """
-    #init = tf.truncated_normal_initializer(stddev = 0.01)
     init = tf.truncated_normal_initializer(stddev = 0.001)
     reg = tf.contrib.layers.l2_regularizer(1e-3)
     
@@ -125,13 +126,17 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     # cross_entropy_loss = cross_entropy_loss + regularization_loss
     
     optimizer = tf.train.AdamOptimizer(learning_rate)
+    #optimizer = tf.train.MomentumOptimizer(learning_rate, momentum=0.99)
+    #optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+    #optimizer = tf.train.RMSPropOptimizer(learning_rate, decay=0.9, momentum=0.0)
+
     train_op = optimizer.minimize(cross_entropy_loss)
     
     return logits, train_op, cross_entropy_loss
 
 
 def train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_fn, train_op, cross_entropy_loss, input_image,
-             correct_label, keep_prob, learning_rate, iou, iou_op, saver, n_batches):
+             correct_label, keep_prob, learning_rate, iou, iou_op, saver, n_train, n_valid, lr, early_stop, patience):
     """
     Train neural network and print out the loss during training.
     :param sess: TF Session
@@ -145,30 +150,32 @@ def train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_f
     :param keep_prob: TF Placeholder for dropout keep probability
     :param learning_rate: TF Placeholder for learning rate
     """
-
-    sess.run(tf.global_variables_initializer())
-    sess.run(tf.local_variables_initializer())
+    print("Start training with lr {} ...".format(lr))
+    fail = 0
     best_iou = 0
     for epoch in range(epochs):
         generator = get_train_batches_fn(batch_size)
-        description = '[i] Epoch {:>2}/{}'.format(epoch+1, epochs)
+        description = 'Train Epoch {:>2}/{}'.format(epoch+1, epochs)
         start = timer()
         losses = []
         ious = []
-        for image, label in tqdm(generator, total=n_batches, desc=description, unit='batches'):
-            _, loss, _ = sess.run([train_op, cross_entropy_loss, iou_op], feed_dict={input_image: image, correct_label: label, keep_prob: 0.8})
+        for image, label in tqdm(generator, total=n_train, desc=description, unit='batches'):
+            _, loss, _ = sess.run([train_op, cross_entropy_loss, iou_op], feed_dict={input_image: image, correct_label: label, 
+                                                                                     keep_prob: 0.8, learning_rate: lr})
             #print(loss)
             losses.append(loss)
             ious.append(sess.run(iou))
         end = timer()
-        print("EPOCH {} ...".format(epoch+1))
+        print("EPOCH {} with lr {} ...".format(epoch+1, lr))
         print("  time {} ...".format(end-start))
         print("  Train Xentloss = {:.4f}".format(sum(losses) / len(losses))) 
         print("  Train IOU = {:.4f}".format(sum(ious) / len(ious))) 
 
+        generator = get_valid_batches_fn(batch_size)
+        description = 'Valid Epoch {:>2}/{}'.format(epoch+1, epochs)
         losses = []
         ious = []
-        for image, label in get_valid_batches_fn(batch_size):
+        for image, label in tqdm(generator, total=n_valid, desc=description, unit='batches'):
             loss, _ = sess.run([cross_entropy_loss, iou_op], feed_dict={input_image: image, correct_label: label, keep_prob: 1})
             losses.append(loss)
             ious.append(sess.run(iou))
@@ -178,8 +185,18 @@ def train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_f
 
         if (valid_iou > best_iou):
             saver.save(sess, './fcn8s')
+            with open("training.txt", "w") as text_file:
+                text_file.write("fcn8s: epoch {}, lr {}, valid_iou {}".format(epoch+1, lr, valid_iou))
             print("  model saved")
             best_iou = valid_iou
+            fail = 0
+        else:
+            lr *= 0.5 # lr scheduling: halving on failure
+            print("  no improvement => lr downscaled to {} ...".format(lr))
+            fail += 1
+
+        if (early_stop and fail >= patience):
+            break
 
 
 # get mean IOU over a reference test set
@@ -215,6 +232,24 @@ def predict_nn(sess, test_image, predictions_argmax, input_image, keep_prob, ima
 
 
 def run():
+    parser = argparse.ArgumentParser(description='Train FCN8s')
+    parser.add_argument('--resume', type=bool, default=False, help='resume training')
+    parser.add_argument('--lr', type=float, default=5e-4, help='learning rate')
+
+    parser.add_argument('--epochs', type=int, default=6, help='epochs')
+    parser.add_argument('--batch-size', type=int, default=4, help='batch size')
+    parser.add_argument('--early-stop', type=bool, default=True, help='early stop')
+    parser.add_argument('--patience', type=int, default=3, help='epochs')
+    args = parser.parse_args()
+
+    resume = args.resume
+    lr = args.lr
+
+    epochs = args.epochs
+    batch_size = args.batch_size
+    early_stop = args.early_stop
+    patience = args.patience
+
     #num_classes = 2
     #image_shape = (160, 576)
     data_dir = './data'
@@ -235,11 +270,8 @@ def run():
     get_valid_batches_fn = helper_cityscapes.gen_batch_function(valid_images, image_shape)
     get_test_batches_fn = helper_cityscapes.gen_batch_function(test_images, image_shape)
 
-    epochs = 6 # XXX temp for testing purposes
-    #batch_size = 8
-    batch_size = 4
-    learning_rate = 5e-4 # 1e-4
     correct_label = tf.placeholder(tf.float32, (None, image_shape[0], image_shape[1], num_classes))
+    learning_rate = tf.placeholder(tf.float32, [])
 
     with tf.Session() as sess:
         # Path to vgg model
@@ -255,11 +287,19 @@ def run():
         softmax_output, predictions_argmax = build_predictor(fcn8s_output)
         iou, iou_op = build_metrics(correct_label, predictions_argmax, num_classes)
 
+        # WARNING run those initializer _BEFORE_ restore
+        sess.run(tf.global_variables_initializer())
+        sess.run(tf.local_variables_initializer())
         saver = tf.train.Saver()
 
-        n_batches = int(math.ceil(len(train_images)/batch_size))
+        if resume:
+            saver.restore(sess, tf.train.latest_checkpoint('.'))
+            print("resume")
+
+        n_train = int(math.ceil(len(train_images)/batch_size))
+        n_valid = int(math.ceil(len(valid_images)/batch_size))
         train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_fn, train_op, cross_entropy_loss, input_image,
-             correct_label, keep_prob, learning_rate, iou, iou_op, saver, n_batches)
+             correct_label, keep_prob, learning_rate, iou, iou_op, saver, n_train, n_valid, lr, early_stop, patience)
 
         test_image = scipy.misc.imread("test_image.png")
         pred_image = predict_nn(sess, test_image, predictions_argmax, input_image, keep_prob, image_shape, label_colors)
