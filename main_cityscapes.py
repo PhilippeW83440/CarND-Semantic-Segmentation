@@ -60,9 +60,14 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :param num_classes: Number of classes to classify
     :return: The Tensor for the last layer of output
     """
-    init = tf.truncated_normal_initializer(stddev = 0.01)
+    #init = tf.truncated_normal_initializer(stddev = 0.01)
+    init = tf.truncated_normal_initializer(stddev = 0.001)
     reg = tf.contrib.layers.l2_regularizer(1e-3)
     
+    # as per fcn8s reference caffe implementation: but does not help at all ...
+    #vgg_layer3_out_scaled = tf.multiply(vgg_layer3_out, 0.0001)
+    #vgg_layer4_out_scaled = tf.multiply(vgg_layer4_out, 0.01)
+
     # reduce dimensions with conv1x1 filters
     conv1x1_l3 = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, 1, padding='same', 
                                   kernel_initializer=init, kernel_regularizer=reg)
@@ -115,10 +120,9 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     
     cross_entropy_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
 
-    # l2_reg does not help here apparently (on kitti) ...
-    # regularization_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
-    # #regularization_loss = tf.add_n(regularization_losses, name='reg_loss') # Scalar
-    # cross_entropy_loss = cross_entropy_loss + sum(regularization_losses)
+    # # l2_reg does not help here apparently  ...
+    # regularization_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)) # Scalar
+    # cross_entropy_loss = cross_entropy_loss + regularization_loss
     
     optimizer = tf.train.AdamOptimizer(learning_rate)
     train_op = optimizer.minimize(cross_entropy_loss)
@@ -231,9 +235,10 @@ def run():
     get_valid_batches_fn = helper_cityscapes.gen_batch_function(valid_images, image_shape)
     get_test_batches_fn = helper_cityscapes.gen_batch_function(test_images, image_shape)
 
-    epochs = 1 # XXX temp for testing purposes
-    batch_size = 8
-    learning_rate = 1e-4 # 1e-4
+    epochs = 6 # XXX temp for testing purposes
+    #batch_size = 8
+    batch_size = 4
+    learning_rate = 5e-4 # 1e-4
     correct_label = tf.placeholder(tf.float32, (None, image_shape[0], image_shape[1], num_classes))
 
     with tf.Session() as sess:
