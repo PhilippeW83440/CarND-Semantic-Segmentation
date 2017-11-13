@@ -1,0 +1,23 @@
+# required inputs in model_dir:
+# -----------------------------
+# fcn8s.index
+# fcn8s.data-00000-of-00001
+# fcn8s.meta
+# checkpoint
+
+
+# 1) Freeze graph (aka model below):
+# ----------------------------------
+
+# 2165 ops -> 245 ops
+python freeze_model.py --model_dir . --output_node_names Softmax
+
+output: freeze_model.pb (a protobuf file)
+
+# 2) Optimize graph:
+# ------------------
+
+# 245 ops -> 209 ops
+python /home/phw/miniconda3/envs/carnd-term1/lib/python3.5/site-packages/tensorflow/python/tools/optimize_for_inference.py --input=frozen_model.pb --output=optimized_graph.pb --frozen_graph=True --input_names=image_input --output_names=Softmax
+
+python load_optimizzed.py
