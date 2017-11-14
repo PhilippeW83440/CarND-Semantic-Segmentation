@@ -322,6 +322,16 @@ def run():
         #  helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
         helper_cityscapes.save_inference_samples(runs_dir, test_images, sess, image_shape, logits, keep_prob, input_image, label_colors)
 
+        output_graph_def = tf.graph_util.convert_variables_to_constants(
+            sess, # The session is used to retrieve the weights
+            tf.get_default_graph().as_graph_def(), # The graph_def is used to retrieve the nodes 
+            output_node_names.split(",") # The output node names are used to select the usefull nodes
+        ) 
+        saver.save(sess, './runs/fcn8s.ckpt')
+        tf.train.write_graph(tf.get_default_graph().as_graph_def(), '', './runs/base_graph.pb', False)
+        tf.train.write_graph(output_graph_def, '', './runs/frozen_graph.pb', False)
+        print("%d ops in the final graph." % len(output_graph_def.node))
+
         # OPTIONAL: Apply the trained model to a video
 
 
