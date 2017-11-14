@@ -21,3 +21,30 @@ output: freeze_model.pb (a protobuf file)
 python /home/phw/miniconda3/envs/carnd-term1/lib/python3.5/site-packages/tensorflow/python/tools/optimize_for_inference.py --input=frozen_model.pb --output=optimized_graph.pb --frozen_graph=True --input_names=image_input --output_names=Softmax
 
 python load_optimizzed.py
+
+# 3) 8-bis Calculations:
+# ----------------------
+
+using tensorflow tool transform_graph
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_transforms/README.md
+
+transform_graph \
+--in_graph=frozen_graph.pb \
+--out_graph=eightbit_graph.pb \
+--inputs=image_input \
+--outputs=Softmax \
+--transforms='
+add_default_attributes
+remove_nodes(op=Identity, op=CheckNumerics)
+fold_constants(ignore_errors=true)
+fold_batch_norms
+fold_old_batch_norms
+fuse_resize_and_conv
+quantize_weights
+quantize_nodes
+strip_unused_nodes
+sort_by_execution_order'
+
+The gist is that fold transforms look for subgraphs that always evaluate to to the same result. Then they consolidate each such subgraph into one Constant node.
+
+quantize_weights quantizes values larger than 15 bits. It also adds nodes to convert back to floating point. The quantize_weights transform is mainly for reducing graph size. For the desired quantization computation behaviour we’ll need to use quantize_nodes as well.
