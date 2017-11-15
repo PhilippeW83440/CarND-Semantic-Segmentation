@@ -274,12 +274,13 @@ def run():
     correct_label = tf.placeholder(tf.float32, (None, image_shape[0], image_shape[1], num_classes))
     learning_rate = tf.placeholder(tf.float32, [])
 
-    # compile tensorflow from sources
+    # # compile tensorflow from sources
+    # does not help ...
     # # Create a TensorFlow configuration object. This will be 
     # # passed as an argument to the session.
-    # config = tf.Config()
+    # config = tf.ConfigProto()
     # # JIT level, this can be set to ON_1 or ON_2 
-    # jit_level = tf.OptimizerOptions.ON_1
+    # jit_level = tf.OptimizerOptions.ON_2
     # config.graph_options.optimizer_options.global_jit_level = jit_level
 
     with tf.Session() as sess:
