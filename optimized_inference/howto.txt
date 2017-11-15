@@ -28,6 +28,10 @@ python load_optimizzed.py
 using tensorflow tool transform_graph
 https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_transforms/README.md
 
+bazel build tensorflow/tools/graph_transforms:transform_graph bazel-bin/tensorflow/tools/graph_transforms/_objs/
+
+/home/philippew/Udacity-term3/tensorflow/bazel-bin/tensorflow/tools/graph_transforms/transform_graph
+
 transform_graph \
 --in_graph=frozen_graph.pb \
 --out_graph=eightbit_graph.pb \

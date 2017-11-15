@@ -1,0 +1,37 @@
+/home/philippew/Udacity-term3/tensorflow/bazel-bin/tensorflow/tools/graph_transforms/transform_graph \
+--in_graph=frozen_graph.pb \
+--out_graph=test_graph.pb \
+--inputs=image_input \
+--outputs=Softmax \
+--transforms='
+add_default_attributes
+remove_nodes(op=Identity, op=CheckNumerics)
+fold_constants(ignore_errors=true)
+fold_batch_norms
+fold_old_batch_norms
+fuse_pad_and_conv
+fuse_resize_and_conv
+merge_duplicate_nodes
+strip_unused_nodes
+sort_by_execution_order'
+
+#quantize_weights
+#quantize_nodes
+
+
+# you have to build transform_graph from sources with bazel
+# bazel build tensorflow/tools/graph_transforms:transform_graph bazel-bin/tensorflow/tools/graph_transforms/_objs
+
+#/home/philippew/Udacity-term3/tensorflow/bazel-bin/tensorflow/tools/graph_transforms/transform_graph \
+#--in_graph=frozen_graph.pb \
+#--out_graph=eightbit_graph.pb \
+#--inputs=image_input \
+#--outputs=Softmax \
+#--transforms='
+#add_default_attributes
+#fold_constants(ignore_errors=true)
+#fold_batch_norms
+#fold_old_batch_norms
+#fuse_resize_and_conv
+#strip_unused_nodes
+#sort_by_execution_order'

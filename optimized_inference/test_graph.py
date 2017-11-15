@@ -31,16 +31,20 @@ config = tf.ConfigProto(log_device_placement=False, device_count = {'GPU': 1})
 #config.gpu_options.per_process_gpu_memory_fraction = 0.9
 # JIT level, this can be set to ON_1 or ON_2 
 # well ... does not help here ...
-jit_level = tf.OptimizerOptions.ON_1
-#jit_level = tf.OptimizerOptions.ON_2
+#jit_level = tf.OptimizerOptions.ON_1
+jit_level = tf.OptimizerOptions.ON_2
 config.graph_options.optimizer_options.global_jit_level = jit_level
 
 # ... does not help so far ...
 # ------------------------------------------------------------------------------------------------
 
 
+#sess, _ = load_graph('base_graph.pb')
+#sess, _ = load_graph('frozen_graph.pb')
+
 #sess, _ = load_graph('frozen_model.pb')
-sess, _ = load_graph('optimized_graph.pb')
+#sess, _ = load_graph('optimized_graph.pb')
+sess, _ = load_graph('test_graph.pb')
 
 graph = sess.graph
 input_image = graph.get_tensor_by_name('image_input:0')
