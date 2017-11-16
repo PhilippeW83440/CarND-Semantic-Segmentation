@@ -184,9 +184,9 @@ def train_nn(sess, epochs, batch_size, get_train_batches_fn, get_valid_batches_f
         print("  Valid IOU = {:.4f}".format(valid_iou)) 
 
         if (valid_iou > best_iou):
-            saver.save(sess, './fcn8s')
-            with open("training.txt", "w") as text_file:
-                text_file.write("fcn8s: epoch {}, lr {}, valid_iou {}".format(epoch+1, lr, valid_iou))
+            saver.save(sess, './models/fcn8s')
+            with open("models/training.txt", "w") as text_file:
+                text_file.write("models/fcn8s: epoch {}, lr {}, valid_iou {}".format(epoch+1, lr, valid_iou))
             print("  model saved")
             best_iou = valid_iou
             fail = 0
