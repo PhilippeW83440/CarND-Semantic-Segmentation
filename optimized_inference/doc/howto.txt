@@ -1,0 +1,48 @@
+# required inputs in model_dir (cf models directory):
+# ---------------------------------------------------
+# fcn8s.index
+# fcn8s.data-00000-of-00001
+# fcn8s.meta
+# checkpoint
+
+
+# 1) Freeze graph (aka model below):
+# ----------------------------------
+
+# 2165 ops -> 245 ops
+python freeze_model.py --model_dir ./models --output_node_names Softmax
+
+output: models/frozen_model.pb (a protobuf file)
+
+# 2) Optimize graph:
+# ------------------
+
+# 245 ops -> 209 ops
+python ../../tensorflow/tensorflow/python/tools/optimize_for_inference.py  --input=models/frozen_model.pb --output=models/optimized_graph.pb --frozen_graph=True --input_names=image_input --output_names=Softmax
+
+python load_optimizzed.py
+
+# 3) 8-bis Calculations:
+# ----------------------
+
+using tensorflow tool transform_graph
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_transforms/README.md
+
+bazel build tensorflow/tools/graph_transforms:transform_graph
+
+../../tensorflow/bazel-bin/tensorflow/tools/graph_transforms/transform_graph \
+--in_graph=models/frozen_graph.pb \
+--out_graph=models/transformed_graph.pb \
+--inputs=image_input \
+--outputs=Softmax \
+--transforms='
+add_default_attributes
+remove_nodes(op=Identity, op=CheckNumerics)
+fold_constants(ignore_errors=true)
+fold_batch_norms
+fold_old_batch_norms
+fuse_resize_and_conv
+quantize_weights
+quantize_nodes
+strip_unused_nodes
+sort_by_execution_order'

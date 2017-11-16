@@ -18,5 +18,5 @@ def load_graph(graph_file, use_xla=False):
         return sess.graph, ops
 
 
-sess, optimized_ops = load_graph('optimized_graph.pb')
+sess, optimized_ops = load_graph('models/optimized_graph.pb')
 print(len(optimized_ops)) # 200
