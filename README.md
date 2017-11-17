@@ -71,8 +71,26 @@ The result is stored as: optimized_inference/data/output.mp4
      <br>semantic segmentation at 11 fps
 </p>
 
-### Introduction
-In this project, you'll label the pixels of a road in images using a Fully Convolutional Network (FCN).
+### References
+
+Fully Convolutional Networks for Semantic Segmentation:  
+https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf  
+
+MultiNet: Real-time Joint Semantic Reasoning for Autonomous Driving:  
+https://arxiv.org/pdf/1612.07695.pdf
+
+ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation:  
+https://arxiv.org/pdf/1606.02147.pdf  
+
+ERFNet: Efficient Residual Factorized ConvNet for Real-time Semantic Segmentation:  
+http://www.robesafe.uah.es/personal/eduardo.romera/pdfs/Romera17tits.pdf  
+
+A 2017 Guide to Semantic Segmentation with Deep Learning:  
+http://blog.qure.ai/notes/semantic-segmentation-deep-learning-review  
+  
+CS231n: Convolutional Neural Networks for Visual Recognition  
+http://cs231n.stanford.edu/syllabus.html  
+
 
 ### Setup
 ##### Frameworks and Packages
@@ -84,16 +102,7 @@ Make sure you have the following is installed:
 ##### Dataset
 Download the [Kitti Road dataset](http://www.cvlibs.net/datasets/kitti/eval_road.php) from [here](http://www.cvlibs.net/download.php?file=data_road.zip).  Extract the dataset in the `data` folder.  This will create the folder `data_road` with all the training a test images.
 
-### Start
-##### Implement
-Implement the code in the `main.py` module indicated by the "TODO" comments.
-The comments indicated with "OPTIONAL" tag are not required to complete.
-##### Run
-Run the following command to run the project:
-```
-python main.py
-```
-**Note** If running this in Jupyter Notebook system messages, such as those regarding test status, may appear in the terminal rather than the notebook.
+
 
 ### Submission
 1. Ensure you've passed all the unit tests.
@@ -104,5 +113,3 @@ python main.py
  - `project_tests.py`
  - Newest inference images from `runs` folder  (**all images from the most recent run**)
  
- ## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
