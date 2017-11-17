@@ -122,15 +122,19 @@ def predict_image(image):
     res_image = np.array(pred_image)
     end = timer()
 
-    time_inference = end_inference - start_inference
-    time_img_processing = (end - start) - time_inference
-    print("time: inference {:.6f} overlay {:.6f}".format(time_inference, time_img_processing))
+    if dump_time:
+        time_inference = end_inference - start_inference
+        time_img_processing = (end - start) - time_inference
+        print("time: inference {:.6f} overlay {:.6f}".format(time_inference, time_img_processing))
     return res_image
 
+dump_time = True
 
-for i in range(15):
+for i in range(10):
     pred_image = predict_image(test_image)
 scipy.misc.imsave("data/pred_image.png", pred_image)
+
+dump_time = False
 
 if video is not None:
     # ffmpeg -f image2 -i stuttgart_00_000000_000%03d_leftImg8bit.png -c:v libx264 -r 30/1.8 -pix_fmt yuv420p out.mp4
