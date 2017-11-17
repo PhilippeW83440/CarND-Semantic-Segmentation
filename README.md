@@ -192,8 +192,11 @@ http://www.robesafe.uah.es/personal/eduardo.romera/pdfs/Romera17tits.pdf
 A 2017 Guide to Semantic Segmentation with Deep Learning:  
 http://blog.qure.ai/notes/semantic-segmentation-deep-learning-review  
   
-CS231n: Convolutional Neural Networks for Visual Recognition  
+CS231n: Convolutional Neural Networks for Visual Recognition:    
 http://cs231n.stanford.edu/syllabus.html  
+
+Data augmentation of Images for better results:    
+https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network  
 
 
 
