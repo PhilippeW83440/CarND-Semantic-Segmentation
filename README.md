@@ -256,6 +256,29 @@ EPOCH 6 ...
 ```
 
 Note:  
-The Kitti test set is very small, a few hundred images: data augmentation would help.  
+The Kitti data set is very small, a few hundred images: data augmentation would help.  
 Whereas Cityscapes is much bigger, 5000 images:data augmentation is less relevant on Cityscapes.  
-I have not tried to get the best results out of Kitti alone and focused mainly on Cityscapes.  
+
+On Kitti, to improve the ability to deal with varying lightening conditions and because the data set is so small, I used
+basic random contrast and brightness adjustments during training.  
+
+The basic contrast and brightness adjustments are transformations of the form f(x)=αx+β    
+(with the result rounded to an integer and clamped to the range [0,255].).   
+  
+Here x is a color component value (R,G or B).  
+The slope α controls contrast (α>1 means more contrast and 0<α<1 less contrast).     
+    
+For easier separation of "brightness" and "contrast" modifications, the formula can be written like
+f(x)=α(x−128)+128+b where b controls brightness.  
+
+```
+def brightness_and_contrast_adjustement(image):
+    contrast = random.uniform(0.9, 1.1)
+    brightness = random.int(-30, 30)
+    image = image.astype(np.int)
+    image =  image * contrast + brightness
+    image[ image > 255 ] = 255
+    image[ image < 0 ] = O
+    image = image.astype(np.int)
+    return image
+```
