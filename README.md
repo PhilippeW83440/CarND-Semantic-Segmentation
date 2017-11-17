@@ -1,5 +1,8 @@
 # Semantic Segmentation
 
+  
+  [![Watch the video](https://i.ytimg.com/vi/xr_2dwZDH6U/hqdefault.jpg)](https://youtu.be/xr_2dwZDH6U)
+
 ### Project description
 
 Pixel wise classification is implemented via a Fully Convolutional Network (FCN) making use of a VGG16 encoder pre-trained on Imagenet for optimal performances.  
