@@ -137,6 +137,16 @@ http://blog.qure.ai/notes/semantic-segmentation-deep-learning-review
 CS231n: Convolutional Neural Networks for Visual Recognition  
 http://cs231n.stanford.edu/syllabus.html  
 
+### Topics for further improvements
+
+- Use a weighted loss function: so that bigger classes do not take over classes with fewer samples and pixels 
+- Use a weighted IOU metric
+- Add images augmentation
+- Provide per class accuracy
+- Use a subsampling factor of 2 instead of 4
+- Use a different front end in the FCN8s architecture: e.g. MobileNet
+- Investigate ENet and ERFNet
+- Try out 8 bits quantization further: e.g. with the next Tensorflow release (so far it is slower)
 
 ### Setup
 ##### Frameworks and Packages
