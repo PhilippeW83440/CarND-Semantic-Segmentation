@@ -97,6 +97,10 @@ This very big front end could be replaced by other alternatives like GoogleNet o
 
 Note that there exists also netwrok architectures like ENet and ERFNet targetting specifically low power embedded devices and enabling real-time semantic segmentation as well. Based on Cityscapes benchmark results, ERFNet looks very interesting: https://www.cityscapes-dataset.com/benchmarks/#pixel-level-results .  
 
+### Hyperparameters tuning
+
+
+
 ### References
 
 Fully Convolutional Networks for Semantic Segmentation:  
