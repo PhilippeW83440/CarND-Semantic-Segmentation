@@ -112,7 +112,7 @@ The settings of initializations and learning rate was very important to achieve 
 
 Different optimizers, Adam, Momentum, RMSProp and GradientDescent were tested. Adam provided the best results.
 
-### Training strategy on Cityscapes
+### Training on Cityscapes
 
 The loss function used for training is the Cross-entropy evaluated over the training set.  
 The IOU is evaluated over the validation set at the end of every epoch, and everytime IOU is improved, the network parameters are saved. So we end up with the best network as per IOU over validation set estimation.  We want to derive a network that is best performing on data not part of the training set.  
@@ -254,3 +254,7 @@ EPOCH 6 ...
   time 64.22518396000123 ...
   Train Xentloss = 0.0561
 ```
+
+Note:  
+The Kitti test set is very small, a few hundred images: data augmentation would help.  
+Whereas Cityscapes is much bigger, 5000 images:data augmentation is less relevant on Cityscapes.  
