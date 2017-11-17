@@ -1,8 +1,16 @@
 # Semantic Segmentation
 
-  
-  [![Watch the video](https://i.ytimg.com/vi/xr_2dwZDH6U/hqdefault.jpg)](https://youtu.be/xr_2dwZDH6U)
+[//]: # (Image References)
+[image1]: ./img/output.gif
+[image2]: ./img/vgg16.png
+[image3]: ./img/mobilenet_v1.png
 
+<p align="center">
+     <img src="./img/output.gif" alt="video demo" width="100%" height="100%">
+     <br>semantic segmentation with a FCN network
+</p>
+  
+  
 ### Project description
 
 Pixel wise classification is implemented via a Fully Convolutional Network (FCN) making use of a VGG16 encoder pre-trained on Imagenet for optimal performances.  
