@@ -83,7 +83,9 @@ A VGG16 encoder pre-trained on Imagenet is being used with the following modific
      <br>vgg16
 </p>
 
-The decoder is in charge of upsampling back to the original image size (i.e. (256, 512) in our case) via 3 consecutive conv2d_transpose operations (x2 x2 x8 => x32 in total; as the input image was downscaled in the encoder by a factor of 32).  
+On top of VGG16 we add 1x1 convolutions to reduce the number of filters from 4096 to whatever the number of classes for our model is.  
+  
+Then a decoder is in charge of upsampling back to the original image size (i.e. (256, 512) in our case) via 3 consecutive conv2d_transpose operations (x2 x2 x8 => x32 in total; as the input image was downscaled in the encoder by a factor of 32).  
 Skip layers are being used to retain and propagate information that was present in the encoder before fully downsampling the image and that would otherwise be lost: this increases the accuracy of the semantic segmenter. 
 
 Concerning the VGG16 encoder:  
