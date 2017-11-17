@@ -112,7 +112,7 @@ The settings of initializations and learning rate was very important to achieve 
 
 Different optimizers, Adam, Momentum, RMSProp and GradientDescent were tested. Adam provided the best results.
 
-### Training strategy
+### Training strategy on Cityscapes
 
 The loss function used for training is the Cross-entropy evaluated over the training set.  
 The IOU is evaluated over the validation set at the end of every epoch, and everytime IOU is improved, the network parameters are saved. So we end up with the best network as per IOU over validation set estimation.  We want to derive a network that is best performing on data not part of the training set.  
@@ -219,3 +219,38 @@ Download the Cityscapes data set from here: https://www.cityscapes-dataset.com/ 
  - `project_tests.py`
  - Newest inference images from `runs` folder  (**all images from the most recent run**)
  
+### Training on Kitti
+
+- learning rate: 1e-4
+- batch size: 1
+- epochs: 6
+- L2 regularization: none
+- init of convolutional layers in the decoder part: tf.truncated_normal_initializer(stddev = 0.01)
+- dropout: 80%
+
+```
+Train Epoch  1/10: 100%|██████████████████████████████████████████████████████████████████████| 289/289 [01:04<00:00,  4.52batches/s]
+EPOCH 1 ...
+  time 64.98857101299836 ...
+  Train Xentloss = 0.2045
+Train Epoch  2/10: 100%|██████████████████████████████████████████████████████████████████████| 289/289 [01:04<00:00,  4.48batches/s]
+EPOCH 2 ...
+  time 64.72664019100012 ...
+  Train Xentloss = 0.1182
+Train Epoch  3/10: 100%|██████████████████████████████████████████████████████████████████████| 289/289 [01:04<00:00,  4.50batches/s]
+EPOCH 3 ...
+  time 64.5625430250002 ...
+  Train Xentloss = 0.0882
+Train Epoch  4/10: 100%|██████████████████████████████████████████████████████████████████████| 289/289 [01:04<00:00,  4.50batches/s]
+EPOCH 4 ...
+  time 64.4953826539986 ...
+  Train Xentloss = 0.0768
+Train Epoch  5/10: 100%|██████████████████████████████████████████████████████████████████████| 289/289 [01:04<00:00,  4.50batches/s]
+EPOCH 5 ...
+  time 64.20335384800092 ...
+  Train Xentloss = 0.0716
+Train Epoch  6/10: 100%|██████████████████████████████████████████████████████████████████████| 289/289 [01:04<00:00,  4.49batches/s]
+EPOCH 6 ...
+  time 64.22518396000123 ...
+  Train Xentloss = 0.0561
+```
