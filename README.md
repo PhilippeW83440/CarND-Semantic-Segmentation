@@ -20,7 +20,7 @@ The current status in terms of performance is the following:
 So with a subsampling of 4 compared to raw images and ground truth images provided by cityscapes
 * inference time on a GTX 1080 TI: 63 ms per image with 32 bits weights  
 
-### How to Train and test on Kitti and Cityscapes test sets
+### How to train and test on Kitti and Cityscapes test sets
 
 Training and testing on Kitti for binary pixel wise classification (road / not road):  
 
