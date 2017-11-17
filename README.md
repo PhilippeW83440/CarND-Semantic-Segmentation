@@ -258,3 +258,4 @@ EPOCH 6 ...
 Note:  
 The Kitti test set is very small, a few hundred images: data augmentation would help.  
 Whereas Cityscapes is much bigger, 5000 images:data augmentation is less relevant on Cityscapes.  
+I have not tried to get the best results out of Kitti alone and focused mainly on Cityscapes.  
