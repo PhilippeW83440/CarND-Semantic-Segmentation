@@ -17,8 +17,41 @@ A demonstration video is provided: based on cityscapes video sequences for quali
 
 The current status in terms of performance is the following:  
 * cityscape test set IOU: 73.48% with (256, 512) input images.   
-So with a subsampling of 4 compared to raw inputs and ground truth provided by cityscapes
+So with a subsampling of 4 compared to raw images and ground truth images provided by cityscapes
 * inference time on a GTX 1080 TI: 63 ms per image with 32 bits weights  
+
+### How to Train and test on Kitti and Cityscapes test sets
+
+Training and testing on Kitti for binary pixel wise classification (road / not road):  
+
+```
+python main.py
+```
+The results on the Kitti test set are stored in runs subdirectory.  
+  
+Training and testing on Cityscapes for 20 classes pixel wise classification:  
+```
+python main_cityscapes.py --epoch 100 --lr 5e-4 --batch-size 4 --early-stop True --patience 3
+```  
+
+The results on the Cityscapes test set are stored in city_runs subdirectory.    
+Moreover the mean IOU metric as per official Cityscape benchmark (with a subsampling of 4 in our case) is provided.    
+
+### How to optimize for inference
+
+In optimized_inference subdirectory:  
+cf optimized_inference/doc/howto.txt  
+The result is a protobuf file optimized for inference: stored in optimized_inference/models/optimized_graph.pb    
+That will be used later on to perform video decoding.    
+
+### How to measure inference time and test on video  
+
+In optimized_inference subdirectory:   
+```
+python test_graph.py --graph models/transformed_graph.pb --video data/video.mp4
+```
+
+The result is stored as: optimized_inference/data/output.mp4    
 
 ### Introduction
 In this project, you'll label the pixels of a road in images using a Fully Convolutional Network (FCN).
