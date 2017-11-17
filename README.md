@@ -28,8 +28,8 @@ cf https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_t
 A demonstration video is provided: based on cityscapes video sequences for qualitative evalutaion.
 
 The current status in terms of performance is the following:  
-* cityscape test set IOU: 73.48% with (256, 512) input images.   
-So with a subsampling of 4 compared to raw images and ground truth images provided by cityscapes
+* Cityscapes test set IOU: 73.48% with (256, 512) input images.   
+So with a subsampling of 4 compared to raw images and **ground truth** images provided by Cityscapes.   
 * inference time on a GTX 1080 TI: 63 ms per image with 32 bits weights  
 
 ### How to train and test on Kitti and Cityscapes test sets
@@ -70,6 +70,30 @@ The result is stored as: optimized_inference/data/output.mp4
      <img src="./img/video_11fps.png" alt="video at 11 fps" width="100%" height="100%">
      <br>semantic segmentation at 11 fps
 </p>
+
+
+### Network architecture  
+
+A VGG16 encoder pre-trained on Imagenet is being used with the following modifications:
+- input image is systematically downscaled to (256, 512). So by a factor of 4 compared to Cityscapes raw images in order to reduce computation time 
+- the fully connected layers are replaced by 1x1 convolutions
+
+ <p align="center">
+     <img src="./img/vgg16.png" alt="vgg16" width="75%" height="75%">
+     <br>vgg16
+</p>
+
+The decoder is in charge of upsampling back to the original image size (i.e. (256, 512) in our case) via 3 consecutive conv2d_transpose operations (x2 x2 x8 => x32 in total; as the input image was downscaled in the encoder by a factor of 32).  
+Skip layers are being used to retain and propagate information that was present in the encoder before fully downsampling the image and that would otherwise be lost: this increases the accuracy of the semantic segmenter. 
+
+Concerning the VGG16 encoder: it is a very big front end that could be replaced by other alternatives like GoogleNet or MobileNet, also pre-trained on Imagenet, if we want to increase fps. The trade off in terms of complexity vs accuracy is depicted below. MobileNet is especially recommended for embedded devices applications.
+
+ <p align="center">
+     <img src="./img/mobilenet_v1.png" alt="vgg16" width="50%" height="50%">
+     <br>MobileNet
+</p>
+
+Note that there exists also netwrok architectures like ENet and ERFNet targetting specifically low power embedded devices and enabling real-time semantic segmentation as well. Based on Cityscapes benchmark results, ERFNet looks very interesting: https://www.cityscapes-dataset.com/benchmarks/#pixel-level-results .  
 
 ### References
 
