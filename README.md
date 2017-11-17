@@ -17,8 +17,8 @@
 Pixel wise classification is implemented via a Fully Convolutional Network (FCN) making use of a VGG16 encoder pre-trained on Imagenet for optimal performances.  
   
 Two databases are used for training:   
-- Kitti (http://www.cvlibs.net/datasets/kitti/eval_road.php)   
-- Cityscape (https://www.cityscapes-dataset.com/)  
+- Kitti: http://www.cvlibs.net/datasets/kitti/eval_road.php   
+- Cityscapes: https://www.cityscapes-dataset.com    
 
 The FCN8s network is trained to perform pixel wise classification among 20 classes as per official cityscapes benchmark.  
 
@@ -99,8 +99,9 @@ Make sure you have the following is installed:
  - [TensorFlow](https://www.tensorflow.org/)
  - [NumPy](http://www.numpy.org/)
  - [SciPy](https://www.scipy.org/)
-##### Dataset
-Download the [Kitti Road dataset](http://www.cvlibs.net/datasets/kitti/eval_road.php) from [here](http://www.cvlibs.net/download.php?file=data_road.zip).  Extract the dataset in the `data` folder.  This will create the folder `data_road` with all the training a test images.
+##### Datasets
+Download the [Kitti Road dataset](http://www.cvlibs.net/datasets/kitti/eval_road.php) from [here](http://www.cvlibs.net/download.php?file=data_road.zip).  Extract the dataset in the `data` folder.  This will create the folder `data_road` with all the training a test images.  
+Download the Cityscapes data set from here: https://www.cityscapes-dataset.com/ . Extract the dataset in the `data/cityscapes` folder. This will create the folders `leftImg8bit` for the train, val and test sets and `gtFine` for the associated ground truth images.  
 
 
 
