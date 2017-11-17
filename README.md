@@ -110,6 +110,13 @@ The settings of initializations and learning rate was very important to achieve 
 
 Different optimizers, Adam, Momentum, RMSProp and GradientDescent were tested. Adam provided the best results.
 
+### Training strategy
+
+The loss function used for training is the Cross-entropy evaluated over the training set.  
+The IOU is evaluated over the validation set at the end of every epoch, and everytime IOU is improved, the network parameters are saved. So we end up with the best network as per IOU over validation set estimation.  We want to derive a network that is best performing on data not part of the training set.  
+When the IOU does not improve at the end of an epoch, the learning rate is divided by a rather big factor of 2.  
+Early stop is being used so that the training stops automaticaly when no improvement in terms of IOU over the validation set is reported during 3 consecutive epochs. This enables to prevent overfitting (increasing performance over training set while decreasing performance over data not, part of the training.
+
 ### References
 
 Fully Convolutional Networks for Semantic Segmentation:  
