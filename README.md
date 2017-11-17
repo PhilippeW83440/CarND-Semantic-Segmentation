@@ -4,6 +4,7 @@
 [image1]: ./img/output.gif
 [image2]: ./img/vgg16.png
 [image3]: ./img/mobilenet_v1.png
+[image3]: ./img/video_11fps.png
 
 <p align="center">
      <img src="./img/output.gif" alt="video demo" width="100%" height="100%">
@@ -63,6 +64,12 @@ python test_graph.py --graph models/transformed_graph.pb --video data/video.mp4
 ```
 
 The result is stored as: optimized_inference/data/output.mp4    
+  
+  
+  <p align="center">
+     <img src="./img/video_11fps.png" alt="video at 11 fps" width="100%" height="100%">
+     <br>semantic segmentation at 11 fps
+</p>
 
 ### Introduction
 In this project, you'll label the pixels of a road in images using a Fully Convolutional Network (FCN).
