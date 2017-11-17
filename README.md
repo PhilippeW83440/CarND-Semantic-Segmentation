@@ -1,4 +1,25 @@
 # Semantic Segmentation
+
+### Project description
+
+Pixel wise classification is implemented via a Fully Convolutional Network (FCN) making use of a VGG16 encoder pre-trained on Imagenet for optimal performances.  
+  
+Two databases are used for training:   
+- Kitti (http://www.cvlibs.net/datasets/kitti/eval_road.php)   
+- Cityscape (https://www.cityscapes-dataset.com/)  
+
+The FCN8s network is trained to perform pixel wise classification among 20 classes as per official cityscapes benchmark.  
+
+The implementation is tested againt the official cityscapes test set in terms of IOU metric.  
+Optimizations on the inference part are being done thanks to the use of Tensorflow freeze, optimize and transform_graph tools.  
+cf https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_transforms/README.md  
+A demonstration video is provided: based on cityscapes video sequences for qualitative evalutaion.
+
+The current status in terms of performance is the following:  
+* cityscape test set IOU: 73.48% with (256, 512) input images.   
+So with a subsampling of 4 compared to raw inputs and ground truth provided by cityscapes
+* inference time on a GTX 1080 TI: 63 ms per image with 32 bits weights  
+
 ### Introduction
 In this project, you'll label the pixels of a road in images using a Fully Convolutional Network (FCN).
 
