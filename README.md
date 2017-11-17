@@ -86,7 +86,9 @@ A VGG16 encoder pre-trained on Imagenet is being used with the following modific
 The decoder is in charge of upsampling back to the original image size (i.e. (256, 512) in our case) via 3 consecutive conv2d_transpose operations (x2 x2 x8 => x32 in total; as the input image was downscaled in the encoder by a factor of 32).  
 Skip layers are being used to retain and propagate information that was present in the encoder before fully downsampling the image and that would otherwise be lost: this increases the accuracy of the semantic segmenter. 
 
-Concerning the VGG16 encoder: it is a very big front end that could be replaced by other alternatives like GoogleNet or MobileNet, also pre-trained on Imagenet, if we want to increase fps. The trade off in terms of complexity vs accuracy is depicted below. MobileNet is especially recommended for embedded devices applications.
+Concerning the VGG16 encoder:  
+It was designed in 2014 by Visual Geometry Group at Oxford university and achieved best results at Imagenet classification competition. VGG has a simple and elegant architecture which makes it great for transfer learning: the VGG architecture is just a long sequence of 3x3 convolutions broken up by 2x2 pooling layers and finished by 3 fully connected layers at the end. Lots of engineers use VGG as a starting point for working on other images deep learning tasks and it works really well. The flexibility of VGG is one of its great strength. Nevertheless it is quite old now and pretty big.  
+This very big front end could be replaced by other alternatives like GoogleNet or MobileNet, also pre-trained on Imagenet, if we want to increase fps. The trade off in terms of complexity vs accuracy is depicted below. MobileNet is especially recommended for embedded devices applications.
 
  <p align="center">
      <img src="./img/mobilenet_v1.png" alt="vgg16" width="50%" height="50%">
