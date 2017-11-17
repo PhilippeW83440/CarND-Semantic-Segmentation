@@ -99,7 +99,16 @@ Note that there exists also netwrok architectures like ENet and ERFNet targettin
 
 ### Hyperparameters tuning
 
+The following hyperparameters were tuned one by one and tested on 6 epochs on Cityscapes training before being used for a full training over 50 epochs:
+- learning rate: 5e-4
+- batch size: 4
+- L2 regularization: none
+- init of convolutional layers in the decoder part: tf.truncated_normal_initializer(stddev = 0.001)
+- dropout: 80%
 
+The settings of initializations and learning rate was very important to achieve good results and fast convergence.
+
+Different optimizers, Adam, Momentum, RMSProp and GradientDescent were tested. Adam provided the best results.
 
 ### References
 
