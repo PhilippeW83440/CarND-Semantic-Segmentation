@@ -28,7 +28,7 @@ cf https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_t
 A demonstration video is provided: based on cityscapes video sequences for qualitative evalutaion.
 
 The current status in terms of performance is the following:  
-* Cityscapes test set IOU: 73.48% with (256, 512) input images.   
+* Cityscapes test set IOU: 73.05% with (256, 512) input images.   
 So with a subsampling of 4 compared to raw images and **ground truth** images provided by Cityscapes.   
 * inference time on a GTX 1080 TI: 63 ms per image with 32 bits weights  
 
@@ -116,6 +116,51 @@ The loss function used for training is the Cross-entropy evaluated over the trai
 The IOU is evaluated over the validation set at the end of every epoch, and everytime IOU is improved, the network parameters are saved. So we end up with the best network as per IOU over validation set estimation.  We want to derive a network that is best performing on data not part of the training set.  
 When the IOU does not improve at the end of an epoch, the learning rate is divided by a rather big factor of 2.  
 Early stop is being used so that the training stops automaticaly when no improvement in terms of IOU over the validation set is reported during 3 consecutive epochs. This enables to prevent overfitting (increasing performance over training set while decreasing performance over data not, part of the training.  
+
+```
+resume
+Start training with lr 0.000125 ...
+Train Epoch  1/20: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 744/744 [12:08<00:00,  1.10s/batches]
+EPOCH 1 with lr 0.000125 ...
+  time 728.0063805610116 ...
+  Train Xentloss = 0.1340
+  Train IOU = 0.8030
+Valid Epoch  1/20: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 125/125 [01:34<00:00,  1.33batches/s]
+  Valid Xentloss = 0.5258
+  Valid IOU = 0.7797
+  model saved
+Train Epoch  2/20: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 744/744 [12:00<00:00,  1.10batches/s]
+EPOCH 2 with lr 0.000125 ...
+  time 720.9770530859823 ...
+  Train Xentloss = 0.1309
+  Train IOU = 0.7714
+Valid Epoch  2/20: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 125/125 [01:34<00:00,  1.31batches/s]
+  Valid Xentloss = 0.5354
+  Valid IOU = 0.7705
+  no improvement => lr downscaled to 6.25e-05 ...
+Train Epoch  3/20: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 744/744 [12:10<00:00,  1.10batches/s]
+EPOCH 3 with lr 6.25e-05 ...
+  time 730.599678264989 ...
+  Train Xentloss = 0.1257
+  Train IOU = 0.7692
+Valid Epoch  3/20: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 125/125 [01:33<00:00,  1.33batches/s]
+  Valid Xentloss = 0.5570
+  Valid IOU = 0.7689
+  no improvement => lr downscaled to 3.125e-05 ...
+Train Epoch  4/20: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 744/744 [12:01<00:00,  1.10batches/s]
+EPOCH 4 with lr 3.125e-05 ...
+  time 721.9444893829932 ...
+  Train Xentloss = 0.1209
+  Train IOU = 0.7695
+Valid Epoch  4/20: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 125/125 [01:33<00:00,  1.33batches/s]
+  Valid Xentloss = 0.5689
+  Valid IOU = 0.7702
+  no improvement => lr downscaled to 1.5625e-05 ...
+predict time 0.22285661302157678
+ 13%|████████████████                                                                                                                | 48/382 [04:18<28:15,  5.08s/batches]
+Test IOU = 0.7305
+
+```
 
 ### Topics for further improvements
 
