@@ -115,7 +115,18 @@ Different optimizers, Adam, Momentum, RMSProp and GradientDescent were tested. A
 The loss function used for training is the Cross-entropy evaluated over the training set.  
 The IOU is evaluated over the validation set at the end of every epoch, and everytime IOU is improved, the network parameters are saved. So we end up with the best network as per IOU over validation set estimation.  We want to derive a network that is best performing on data not part of the training set.  
 When the IOU does not improve at the end of an epoch, the learning rate is divided by a rather big factor of 2.  
-Early stop is being used so that the training stops automaticaly when no improvement in terms of IOU over the validation set is reported during 3 consecutive epochs. This enables to prevent overfitting (increasing performance over training set while decreasing performance over data not, part of the training.
+Early stop is being used so that the training stops automaticaly when no improvement in terms of IOU over the validation set is reported during 3 consecutive epochs. This enables to prevent overfitting (increasing performance over training set while decreasing performance over data not, part of the training.  
+
+### Topics for further improvements
+
+- Use a weighted loss function: so that bigger classes do not take over classes with fewer samples and pixels 
+- Use a weighted IOU metric
+- Add images augmentation
+- Provide per class accuracy
+- Use a subsampling factor of 2 instead of 4
+- Use a different front end in the FCN8s architecture: e.g. MobileNet
+- Investigate ENet and ERFNet
+- Try out 8 bits quantization further: e.g. with the next Tensorflow release (so far it is slower)
 
 ### References
 
@@ -137,16 +148,7 @@ http://blog.qure.ai/notes/semantic-segmentation-deep-learning-review
 CS231n: Convolutional Neural Networks for Visual Recognition  
 http://cs231n.stanford.edu/syllabus.html  
 
-### Topics for further improvements
 
-- Use a weighted loss function: so that bigger classes do not take over classes with fewer samples and pixels 
-- Use a weighted IOU metric
-- Add images augmentation
-- Provide per class accuracy
-- Use a subsampling factor of 2 instead of 4
-- Use a different front end in the FCN8s architecture: e.g. MobileNet
-- Investigate ENet and ERFNet
-- Try out 8 bits quantization further: e.g. with the next Tensorflow release (so far it is slower)
 
 ### Setup
 ##### Frameworks and Packages
