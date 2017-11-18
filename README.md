@@ -77,6 +77,12 @@ The result is stored as: optimized_inference/data/output.mp4
      <br>semantic segmentation at 11 fps
 </p>
 
+Doing 8 bits quantization results in graph that is 4 times smaller: 130 MB instead of 520 MB.  
+In theory it should be faster, but in practice today with Tensorflow is it twice slower.  
+cf: https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_transforms/README.md  
+
+With TensorRT tool from Nvidia it is expected to get close to a 3x speed impovement on a drive PX2 board.  
+cf http://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf  
 
 ### Network architecture  
 
