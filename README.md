@@ -14,10 +14,12 @@
 
 <p align="center">
      <img src="./img/output.gif" alt="video demo" width="100%" height="100%">
-     <br>semantic segmentation with a FCN network
+     <br>semantic segmentation with a FCN network 
 </p>
   
-  
+The network used for above video demo, fcn8s-phw.pb, was trained on cityscapes dataset with Tensorflow.  
+It can be downloaded from here: https://drive.google.com/open?id=1Pfb0BSL8Y0TSghMOqjUKfQ4ZpAeFsTmz    
+
 ### Project description
 
 Pixel wise classification is implemented via a Fully Convolutional Network (FCN) making use of a VGG16 encoder pre-trained on Imagenet for optimal performances.  
@@ -224,15 +226,6 @@ Download the [Kitti Road dataset](http://www.cvlibs.net/datasets/kitti/eval_road
 Download the Cityscapes data set from here: https://www.cityscapes-dataset.com/ . Extract the dataset in the `data/cityscapes` folder. This will create the folders `leftImg8bit` for the train, val and test sets and `gtFine` for the associated ground truth images.  
 
 
-
-### Submission
-1. Ensure you've passed all the unit tests.
-2. Ensure you pass all points on [the rubric](https://review.udacity.com/#!/rubrics/989/view).
-3. Submit the following in a zip file.
- - `helper.py`
- - `main.py`
- - `project_tests.py`
- - Newest inference images from `runs` folder  (**all images from the most recent run**)
  
 ### Training on Kitti
 
