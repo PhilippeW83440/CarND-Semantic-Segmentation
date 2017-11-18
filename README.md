@@ -5,6 +5,12 @@
 [image2]: ./img/vgg16.png
 [image3]: ./img/mobilenet_v1.png
 [image3]: ./img/video_11fps.png
+[image4]: ./img/um_000019.png
+[image4]: ./img/um_000031.png
+[image4]: ./img/umm_000090.png
+[image4]: ./img/umm_000091.png
+[image4]: ./img/uu_000023.png
+[image4]: ./img/uu_000046.png
 
 <p align="center">
      <img src="./img/output.gif" alt="video demo" width="100%" height="100%">
@@ -287,3 +293,17 @@ def brightness_and_contrast_adjustement(image):
     image = image.astype(np.int)
     return image
 ```
+
+### Results on Kitti
+
+<p align="center">
+     <img src="./img/umm_000090.png" alt="kitti" width="75%" height="75%">
+</p>
+
+<p align="center">
+     <img src="./img/uu_000023.png" alt="kitti" width="75%" height="75%">
+</p>
+
+<p align="center">
+     <img src="./img/um_000031.png" alt="kitti" width="75%" height="75%">
+</p>
