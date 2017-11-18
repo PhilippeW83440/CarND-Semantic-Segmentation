@@ -300,7 +300,7 @@ def brightness_and_contrast_adjustement(image):
     return image
 ```
 
-### Results on Kitti
+### Some examples on Kitti
 
 <p align="center">
      <img src="./img/umm_000090.png" alt="kitti" width="75%" height="75%">
