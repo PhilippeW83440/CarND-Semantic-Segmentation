@@ -305,5 +305,5 @@ def brightness_and_contrast_adjustement(image):
 </p>
 
 <p align="center">
-     <img src="./img/um_000031.png" alt="kitti" width="75%" height="75%">
+     <img src="./img/um_000019.png" alt="kitti" width="75%" height="75%">
 </p>
