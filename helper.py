@@ -107,6 +107,15 @@ def gen_mybatch_function(image_paths, image_shape, label_paths):
             yield np.array(images), np.array(gt_images)
     return get_mybatches_fn
 
+def brightness_and_contrast_adjustement(image):
+    contrast = random.uniform(0.8, 1.2)
+    brightness = random.randint(-40, 40)
+    image = image.astype(np.int)
+    image =  image * contrast + brightness
+    image[ image > 255 ] = 255
+    image[ image < 0 ] = 0
+    image = image.astype(np.int)
+    return image
 
 
 def gen_batch_function(data_folder, image_shape):
@@ -136,6 +145,7 @@ def gen_batch_function(data_folder, image_shape):
                 gt_image_file = label_paths[os.path.basename(image_file)]
 
                 image = scipy.misc.imresize(scipy.misc.imread(image_file), image_shape)
+                image = brightness_and_contrast_adjustement(image)
                 gt_image = scipy.misc.imresize(scipy.misc.imread(gt_image_file), image_shape)
 
                 gt_bg = np.all(gt_image == background_color, axis=2)
