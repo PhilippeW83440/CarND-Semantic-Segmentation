@@ -113,7 +113,7 @@ This very big front end could be replaced by other alternatives like GoogleNet o
 
 Note that there exists also netwrok architectures like ENet and ERFNet targetting specifically low power embedded devices and enabling real-time semantic segmentation as well. Based on Cityscapes benchmark results, ERFNet looks very interesting: https://www.cityscapes-dataset.com/benchmarks/#pixel-level-results .  
 
-### Hyperparameters tuning
+### Hyperparameters tuning on Cityscapes
 
 The following hyperparameters were tuned one by one and tested on 6 epochs on Cityscapes training before being used for a full training over 50 epochs:
 - learning rate: 5e-4
@@ -307,7 +307,7 @@ def brightness_and_contrast_adjustement(image):
     return image
 ```
 
-### Some examples on Kitti
+### Some examples on Kitti test set (not part of the training)
 
 
 <p align="center">
