@@ -229,12 +229,13 @@ Download the Cityscapes data set from here: https://www.cityscapes-dataset.com/ 
  
 ### Training on Kitti
 
-- learning rate: 1e-4
+- learning rate: 1e-4  
 - batch size: 1
-- epochs: 6
+- epochs: 300
 - L2 regularization: none
-- init of convolutional layers in the decoder part: tf.truncated_normal_initializer(stddev = 0.01)
+- init of convolutional layers in the decoder part: tf.truncated_normal_initializer(stddev = 0.001)
 - dropout: 80%
+
 
 ```
 2017-11-18 01:22:31.489004: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:01:00.0)
@@ -263,6 +264,19 @@ EPOCH 6 ...
   time 64.34970465299921 ...
   Train Xentloss = 0.0609
 Training Finished. Saving test images to: ./runs/1510964942.2688246
+
+...
+
+EPOCH 300 with lr 6.25e-06 ...
+  time 73.35743469100271 ...
+  Train Xentloss = 0.0009
+  Train IOU = 0.9980
+Valid Epoch 300/300: 100%|██████████████████████████████████████████████████████████████████████████| 28/28 [00:03<00:00,  7.01batches/s]
+  Valid Xentloss = 0.0084
+  Valid IOU = 0.9980
+  model saved
+Training Finished. Saving test images to: ./runs/1511102357.0478082
+
 ```
 
 Note:  
@@ -295,14 +309,37 @@ def brightness_and_contrast_adjustement(image):
 
 ### Some examples on Kitti
 
+
+<p align="center">
+     <img src="./img/um_000019.png" alt="kitti" width="75%" height="75%">
+</p>
+<p align="center">
+     <img src="./img/um_000031.png" alt="kitti" width="75%" height="75%">
+</p>
+<p align="center">
+     <img src="./img/um_000061.png" alt="kitti" width="75%" height="75%">
+</p>
+<p align="center">
+     <img src="./img/um_000088.png" alt="kitti" width="75%" height="75%">
+</p>
 <p align="center">
      <img src="./img/umm_000090.png" alt="kitti" width="75%" height="75%">
 </p>
 
 <p align="center">
-     <img src="./img/uu_000023.png" alt="kitti" width="75%" height="75%">
+     <img src="./img/umm_000091.png" alt="kitti" width="75%" height="75%">
 </p>
 
+
 <p align="center">
-     <img src="./img/um_000019.png" alt="kitti" width="75%" height="75%">
+     <img src="./img/uu_000022.png" alt="kitti" width="75%" height="75%">
+</p>
+<p align="center">
+     <img src="./img/uu_000023.png" alt="kitti" width="75%" height="75%">
+</p>
+<p align="center">
+     <img src="./img/uu_000046.png" alt="kitti" width="75%" height="75%">
+</p>
+<p align="center">
+     <img src="./img/uu_000090.png" alt="kitti" width="75%" height="75%">
 </p>
