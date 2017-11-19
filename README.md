@@ -279,6 +279,9 @@ Training Finished. Saving test images to: ./runs/1511102357.0478082
 
 ```
 
+After   6 epochs: validation set IOU was around 80%  
+After 300 epochs: validation set IOU is 99.80%  
+  
 Note:  
 The Kitti data set is very small, a few hundred images: data augmentation would help.  
 Whereas Cityscapes is much bigger, 5000 images:data augmentation is less relevant on Cityscapes.  
