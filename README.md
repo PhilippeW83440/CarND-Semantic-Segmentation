@@ -5,13 +5,21 @@
 [image2]: ./img/vgg16.png
 [image3]: ./img/mobilenet_v1.png
 [image3]: ./img/video_11fps.png
+[image4]: ./img/um_000019.png
+[image4]: ./img/um_000031.png
+[image4]: ./img/umm_000090.png
+[image4]: ./img/umm_000091.png
+[image4]: ./img/uu_000023.png
+[image4]: ./img/uu_000046.png
 
 <p align="center">
      <img src="./img/output.gif" alt="video demo" width="100%" height="100%">
-     <br>semantic segmentation with a FCN network
+     <br>semantic segmentation with a FCN network 
 </p>
   
-  
+The network used for above video demo, fcn8s-phw.pb, was trained on cityscapes dataset with Tensorflow.  
+It can be downloaded from here: https://drive.google.com/open?id=1Pfb0BSL8Y0TSghMOqjUKfQ4ZpAeFsTmz    
+
 ### Project description
 
 Pixel wise classification is implemented via a Fully Convolutional Network (FCN) making use of a VGG16 encoder pre-trained on Imagenet for optimal performances.  
@@ -71,6 +79,12 @@ The result is stored as: optimized_inference/data/output.mp4
      <br>semantic segmentation at 11 fps
 </p>
 
+Doing 8 bits quantization results in graph that is 4 times smaller: 130 MB instead of 520 MB.  
+In theory it should be faster, but in practice today with Tensorflow is it twice slower.  
+cf: https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_transforms/README.md  
+
+With TensorRT tool from Nvidia it is expected to get close to a 3x speed impovement on a drive PX2 board.  
+cf http://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf  
 
 ### Network architecture  
 
@@ -212,15 +226,6 @@ Download the [Kitti Road dataset](http://www.cvlibs.net/datasets/kitti/eval_road
 Download the Cityscapes data set from here: https://www.cityscapes-dataset.com/ . Extract the dataset in the `data/cityscapes` folder. This will create the folders `leftImg8bit` for the train, val and test sets and `gtFine` for the associated ground truth images.  
 
 
-
-### Submission
-1. Ensure you've passed all the unit tests.
-2. Ensure you pass all points on [the rubric](https://review.udacity.com/#!/rubrics/989/view).
-3. Submit the following in a zip file.
- - `helper.py`
- - `main.py`
- - `project_tests.py`
- - Newest inference images from `runs` folder  (**all images from the most recent run**)
  
 ### Training on Kitti
 
@@ -287,3 +292,17 @@ def brightness_and_contrast_adjustement(image):
     image = image.astype(np.int)
     return image
 ```
+
+### Some examples on Kitti
+
+<p align="center">
+     <img src="./img/umm_000090.png" alt="kitti" width="75%" height="75%">
+</p>
+
+<p align="center">
+     <img src="./img/uu_000023.png" alt="kitti" width="75%" height="75%">
+</p>
+
+<p align="center">
+     <img src="./img/um_000019.png" alt="kitti" width="75%" height="75%">
+</p>
