@@ -22,18 +22,18 @@ It can be downloaded from here: https://drive.google.com/open?id=1Pfb0BSL8Y0TSgh
 
 ### Project description
 
-Pixel wise classification is implemented via a Fully Convolutional Network (FCN) making use of a VGG16 encoder pre-trained on Imagenet for optimal performances.  
+Pixel-wise classification is implemented via a Fully Convolutional Network (FCN) making use of a VGG16 encoder pre-trained on Imagenet for optimal performances.  
   
 Two databases are used for training:   
 - Kitti: http://www.cvlibs.net/datasets/kitti/eval_road.php   
 - Cityscapes: https://www.cityscapes-dataset.com    
 
-The FCN8s network is trained to perform pixel wise classification among 20 classes as per official cityscapes benchmark.  
+The FCN8s network is trained to perform pixel-wise classification among 20 classes as per official cityscapes benchmark.  
 
-The implementation is tested againt the official cityscapes test set in terms of IOU metric.  
+The implementation is tested against the official cityscapes test set in terms of IOU metric.  
 Optimizations on the inference part are being done thanks to the use of Tensorflow freeze, optimize and transform_graph tools.  
 cf https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_transforms/README.md  
-A demonstration video is provided: based on cityscapes video sequences for qualitative evalutaion.
+A demonstration video is provided: based on cityscapes video sequences for qualitative evaluation.
 
 The current status in terms of performance is the following:  
 * Cityscapes test set IOU: 73.05% with (256, 512) input images.   
@@ -42,20 +42,20 @@ So with a subsampling of 4 compared to raw images and **ground truth** images pr
 
 ### How to train and test on Kitti and Cityscapes test sets
 
-Training and testing on Kitti for binary pixel wise classification (road / not road):  
+Training and testing on Kitti for binary pixel-wise classification (road / not road):  
 
 ```
 python main.py
 ```
 The results on the Kitti test set are stored in runs subdirectory.  
   
-Training and testing on Cityscapes for 20 classes pixel wise classification:  
+Training and testing on Cityscapes for 20 classes pixel-wise classification:  
 ```
 python main_cityscapes.py --epoch 100 --lr 5e-4 --batch-size 4 --early-stop True --patience 3
 ```  
 
 The results on the Cityscapes test set are stored in city_runs subdirectory.    
-Moreover the mean IOU metric as per official Cityscape benchmark (with a subsampling of 4 in our case) is provided.    
+Moreover, the mean IOU metric as per official Cityscape benchmark (with a subsampling of 4 in our case) is provided.    
 
 ### How to optimize for inference
 
@@ -79,17 +79,17 @@ The result is stored as: optimized_inference/data/output.mp4
      <br>semantic segmentation at 11 fps
 </p>
 
-Doing 8 bits quantization results in graph that is 4 times smaller: 130 MB instead of 520 MB.  
-In theory it should be faster, but in practice today with Tensorflow is it twice slower.  
+Doing 8 bits quantization results in a graph that is 4 times smaller: 130 MB instead of 520 MB.  
+In theory, it should be faster, but in practice today with Tensorflow is it twice slower.  
 cf: https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/graph_transforms/README.md  
 
-With TensorRT tool from Nvidia it is expected to get close to a 3x speed impovement on a drive PX2 board.  
+With TensorRT tool from Nvidia it is expected to get close to a 3x speed improvement on a drive PX2 board.  
 cf http://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf  
 
 ### Network architecture  
 
 A VGG16 encoder pre-trained on Imagenet is being used with the following modifications:
-- input image is systematically downscaled to (256, 512). So by a factor of 4 compared to Cityscapes raw images in order to reduce computation time 
+- the input image is systematically downscaled to (256, 512). So by a factor of 4 compared to Cityscapes raw images in order to reduce computation time 
 - the fully connected layers are replaced by 1x1 convolutions
 
  <p align="center">
@@ -97,14 +97,14 @@ A VGG16 encoder pre-trained on Imagenet is being used with the following modific
      <br>vgg16
 </p>
 
-On top of VGG16 we add 1x1 convolutions to reduce the number of filters from 4096 to whatever the number of classes for our model is.  
+On top of VGG16, we add 1x1 convolutions to reduce the number of filters from 4096 to whatever the number of classes for our model is.  
   
 Then a decoder is in charge of upsampling back to the original image size (i.e. (256, 512) in our case) via 3 consecutive conv2d_transpose operations (x2 x2 x8 => x32 in total; as the input image was downscaled in the encoder by a factor of 32).  
 Skip layers are being used to retain and propagate information that was present in the encoder before fully downsampling the image and that would otherwise be lost: this increases the accuracy of the semantic segmenter. 
 
 Concerning the VGG16 encoder:  
-It was designed in 2014 by Visual Geometry Group at Oxford university and achieved best results at Imagenet classification competition. VGG has a simple and elegant architecture which makes it great for transfer learning: the VGG architecture is just a long sequence of 3x3 convolutions broken up by 2x2 pooling layers and finished by 3 fully connected layers at the end. Lots of engineers use VGG as a starting point for working on other images deep learning tasks and it works really well. The flexibility of VGG is one of its great strength. Nevertheless it is quite old now and pretty big.  
-This very big front end could be replaced by other alternatives like GoogleNet or MobileNet, also pre-trained on Imagenet, if we want to increase fps. The trade off in terms of complexity vs accuracy is depicted below. MobileNet is especially recommended for embedded devices applications.
+It was designed in 2014 by Visual Geometry Group at Oxford University and achieved best results at Imagenet classification competition. VGG has a simple and elegant architecture which makes it great for transfer learning: the VGG architecture is just a long sequence of 3x3 convolutions broken up by 2x2 pooling layers and finished by 3 fully connected layers at the end. Lots of engineers use VGG as a starting point for working on other images deep learning tasks and it works really well. The flexibility of VGG is one of its great strength. Nevertheless, it is quite old now and pretty big.  
+This very big front end could be replaced by other alternatives like GoogleNet or MobileNet, also pre-trained on Imagenet, if we want to increase fps. The trade-off in terms of complexity vs accuracy is depicted below. MobileNet is especially recommended for embedded devices applications.
 
  <p align="center">
      <img src="./img/mobilenet_v1.png" alt="vgg16" width="50%" height="50%">
@@ -115,16 +115,16 @@ Note that there exists also netwrok architectures like ENet and ERFNet targettin
 
 ### Hyperparameters tuning on Cityscapes
 
-The following hyperparameters were tuned one by one and tested on 6 epochs on Cityscapes training before being used for a full training over 50 epochs:
+The following hyperparameters were tuned one by one and tested on 6 epochs on Cityscapes training before being used for full training over 50 epochs:
 - learning rate: 5e-4
 - batch size: 4
 - L2 regularization: none
 - init of convolutional layers in the decoder part: tf.truncated_normal_initializer(stddev = 0.001)
 - dropout: 80%
 
-The settings of initializations and learning rate was very important to achieve good results and fast convergence.
+The settings of initializations and learning rate were critical to achieve good results and fast convergence.
 
-Different optimizers, Adam, Momentum, RMSProp and GradientDescent were tested. Adam provided the best results.
+Different optimizers, Adam, Momentum, RMSProp, and GradientDescent were tested. Adam provided the best results.
 
 ### Training on Cityscapes
 
@@ -284,12 +284,12 @@ After 300 epochs: validation set IOU is 99.80%
   
 Note:  
 The Kitti data set is very small, a few hundred images: data augmentation would help.  
-Whereas Cityscapes is much bigger, 5000 images:data augmentation is less relevant on Cityscapes.  
+Whereas Cityscapes is much bigger, 5000 images: data augmentation is less relevant on Cityscapes.  
 
 On Kitti, to improve the ability to deal with varying lightening conditions and because the data set is so small, I used
 basic random contrast and brightness adjustments during training.  
 
-The basic contrast and brightness adjustments are transformations of the form f(x)=αx+β    
+The basic contrast and brightness adjustments are transformations of form f(x)=αx+β    
 (with the result rounded to an integer and clamped to the range [0,255].).   
   
 Here x is a color component value (R,G or B).  
